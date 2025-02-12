@@ -62,12 +62,6 @@ module.exports = async (req, res) => {
                 return;
             }
 
-            // Redirect to the URL if it is Google or any other search engine
-            if (url.startsWith('https://www.google.com') || url.startsWith('https://www.bing.com')) {
-                res.redirect(url);
-                return;
-            }
-
             try {
                 console.log(`Fetching content from URL: ${url}`);
                 const response = await fetch(url);
