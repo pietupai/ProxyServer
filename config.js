@@ -15,6 +15,7 @@ module.exports = {
   ],
   disallowedDestinations: [
     'https://www.disallowed-destination.com',
-    'https://www.malicious-site.com'
+    'https://www.malicious-site.com',
+    'https://www.google.com',
   ]
 };
