@@ -1,9 +1,10 @@
 {
-    "name": "my-proxy-server",
-    "version": "1.0.0",
-    "main": "index.js",
-    "license": "MIT",
-    "dependencies": {
-        "node-fetch": "^2.6.1"
-    }
+  "name": "proxyserver",
+  "version": "1.0.0",
+  "main": "api/trigger-workflow.js",
+  "license": "MIT",
+  "dependencies": {
+    "node-fetch": "^2.6.1",
+    "cors": "^2.8.5"
+  }
 }
