@@ -8,7 +8,8 @@ module.exports = async (req, res) => {
 
     if (req.method === 'OPTIONS') {
         // Handle preflight request
-        return res.status(204).end();
+        res.status(204).end();
+        return;
     }
 
     if (req.method === 'POST') {
