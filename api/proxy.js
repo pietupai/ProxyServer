@@ -55,8 +55,8 @@ module.exports = async (req, res) => {
                 return;
             }
 
-            // Check if the destination URL is allowed or if the origin is missing (local requests)
-            if (config.allowedDestinations.length > 0 && !config.allowedDestinations.includes(url) && origin !== '') {
+            // Check if the destination URL is allowed
+            if (config.allowedDestinations.length > 0 && !config.allowedDestinations.includes(url)) {
                 console.log(`Not allowed destination URL: ${url}`);
                 res.status(403).json({ error: `This URL is not allowed to be proxied. URL: ${url}` });
                 return;
