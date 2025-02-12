@@ -1,6 +1,12 @@
 const fetch = require('node-fetch');
+const cors = require('cors');
 
-module.exports = async (req, res) => {
+module.exports = (req, res) => {
+    // Enable CORS
+    res.setHeader('Access-Control-Allow-Origin', '*');
+    res.setHeader('Access-Control-Allow-Methods', 'GET,POST,OPTIONS');
+    res.setHeader('Access-Control-Allow-Headers', 'Content-Type,Authorization');
+
     const apiKey = process.env.GITHUB_API_KEY; // Ensure you set this in your Vercel environment variables
     const { url } = req.body;
     const data = JSON.stringify({
@@ -9,19 +15,24 @@ module.exports = async (req, res) => {
     });
     const githubUrl = 'https://api.github.com/repos/petehuu/hae/actions/workflows/142889037/dispatches';
 
-    const response = await fetch(githubUrl, {
+    fetch(githubUrl, {
         method: 'POST',
         headers: {
             'Content-Type': 'application/json',
             'Authorization': `token ${apiKey}`
         },
         body: data
+    })
+    .then(response => {
+        if (response.ok) {
+            res.status(200).send('Request sent successfully!');
+        } else {
+            response.text().then(text => {
+                res.status(response.status).send(`Error sending the request: ${text}`);
+            });
+        }
+    })
+    .catch(error => {
+        res.status(500).send(`Error sending the request: ${error.message}`);
     });
-
-    if (response.ok) {
-        res.status(200).send('Request sent successfully!');
-    } else {
-        const errorText = await response.text();
-        res.status(response.status).send(`Error sending the request: ${response.statusText}\n${errorText}`);
-    }
 };
