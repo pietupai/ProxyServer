@@ -1,6 +1,16 @@
 const fetch = require('node-fetch');
 
 module.exports = async (req, res) => {
+    // Set CORS headers
+    res.setHeader('Access-Control-Allow-Origin', '*');
+    res.setHeader('Access-Control-Allow-Methods', 'GET, POST, OPTIONS');
+    res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization');
+
+    if (req.method === 'OPTIONS') {
+        // Handle preflight request
+        return res.status(200).end();
+    }
+
     if (req.method === 'POST') {
         let body = '';
         req.on('data', chunk => {
@@ -27,8 +37,7 @@ module.exports = async (req, res) => {
                     body: data
                 });
                 if (response.ok) {
-                    const responseData = await response.json();
-                    res.status(200).send(`Request sent successfully! Response: ${JSON.stringify(responseData)}`);
+                    res.status(200).send('Request sent successfully!');
                 } else {
                     const text = await response.text();
                     res.status(response.status).send(`Error sending the request: ${text}`);
