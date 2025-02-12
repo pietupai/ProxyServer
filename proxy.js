@@ -16,6 +16,8 @@ module.exports = async (req, res) => {
     }
 
     if (req.method === 'GET') {
+        console.log('Received a GET request');
+
         const { url } = req.query;
         if (!url) {
             res.status(400).json({ error: 'Missing url parameter' });
@@ -23,10 +25,12 @@ module.exports = async (req, res) => {
         }
 
         try {
+            console.log(`Fetching content from URL: ${url}`);
             const response = await fetch(url);
             const content = await response.text();
             res.status(response.status).send(content);
         } catch (error) {
+            console.error(`Error fetching the URL: ${error.message}`);
             res.status(500).json({ error: `Error fetching the URL: ${error.message}` });
         }
     } else {
