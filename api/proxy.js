@@ -1,8 +1,10 @@
 const fetch = require('node-fetch');
+const fs = require('fs');
 const path = require('path');
 
-// Load the configuration from the JavaScript file
-const config = require(path.resolve(__dirname, '../config.js'));
+// Load the configuration from the JSON file
+const configPath = path.resolve(__dirname, '../config.json');
+const config = JSON.parse(fs.readFileSync(configPath, 'utf8'));
 
 module.exports = async (req, res) => {
     // Set CORS headers as per Vercel support suggestion
@@ -18,13 +20,13 @@ module.exports = async (req, res) => {
 
     // Check if the origin is disallowed
     if (config.disallowedOrigins.length > 0 && config.disallowedOrigins.includes(origin)) {
-        res.status(403).json({ error: 'This origin is blacklisted from accessing the proxy.' });
+        res.status(403).json({ error: `This origin is blacklisted from accessing the proxy: ${origin}` });
         return;
     }
 
     // Check if the origin is allowed
     if (config.allowedOrigins.length > 0 && !config.allowedOrigins.includes(origin)) {
-        res.status(403).json({ error: 'This origin is not allowed to access the proxy.' });
+        res.status(403).json({ error: `This origin is not allowed to access the proxy: ${origin}` });
         return;
     }
 
@@ -44,13 +46,13 @@ module.exports = async (req, res) => {
 
         // Check if the destination URL is blacklisted
         if (config.disallowedDestinations.length > 0 && config.disallowedDestinations.includes(url)) {
-            res.status(403).json({ error: 'This URL is blacklisted from being proxied.' });
+            res.status(403).json({ error: `This URL is blacklisted from being proxied: ${url}` });
             return;
         }
 
         // Check if the destination URL is allowed
         if (config.allowedDestinations.length > 0 && !config.allowedDestinations.includes(url)) {
-            res.status(403).json({ error: 'This URL is not allowed to be proxied.' });
+            res.status(403).json({ error: `This URL is not allowed to be proxied: ${url}` });
             return;
         }
 
