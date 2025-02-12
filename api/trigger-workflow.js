@@ -16,7 +16,7 @@ module.exports = async (req, res) => {
                     ref: 'main',
                     inputs: { url: url }
                 });
-                const githubUrl = 'https://api.github.com/repos/pietupai/hae/actions/workflows/142889037/dispatches';
+                const githubUrl = 'https://api.github.com/repos/pietupai/hae/actions/workflows/update-request.yml/dispatches';
 
                 const response = await fetch(githubUrl, {
                     method: 'POST',
