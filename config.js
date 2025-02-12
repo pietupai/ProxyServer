@@ -1,8 +1,8 @@
 // config.js
 module.exports = {
   allowedOrigins: [
-    'https://your-allowed-origin1.com',
-    'https://your-allowed-origin2.com'
+    //'https://your-allowed-origin1.com',
+    //'https://your-allowed-origin2.com'
     // 'https://another-allowed-origin.com' // Temporarily commented out
   ],
   disallowedOrigins: [
@@ -10,8 +10,8 @@ module.exports = {
     'https://your-disallowed-origin2.com'
   ],
   allowedDestinations: [
-    'https://www.google.com',
-    'https://www.example.com'
+    //'https://www.google.com',
+    //'https://www.example.com'
   ],
   disallowedDestinations: [
     'https://www.disallowed-destination.com',
