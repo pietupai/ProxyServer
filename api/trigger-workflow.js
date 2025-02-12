@@ -1,46 +1,54 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Request to Vercel API</title>
-</head>
-<body>
-    <h1>Request to Vercel API</h1>
-    <input type="text" id="urlInput" placeholder="Enter URL">
-    <button id="sendRequestButton">Send Request</button>
-    <p id="responseMessage"></p>
+const fetch = require('node-fetch');
 
-    <script>
-        document.getElementById('sendRequestButton').onclick = async function () {
-            const urlInput = document.getElementById('urlInput').value;
-            const responseMessage = document.getElementById('responseMessage');
+module.exports = async (req, res) => {
+    // Set CORS headers
+    res.setHeader('Access-Control-Allow-Origin', '*');
+    res.setHeader('Access-Control-Allow-Methods', 'GET, POST, OPTIONS');
+    res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization');
 
-            if (!urlInput) {
-                responseMessage.textContent = 'Please enter a URL';
-                return;
-            }
+    if (req.method === 'OPTIONS') {
+        // Handle preflight request
+        return res.status(204).end();
+    }
 
+    if (req.method === 'POST') {
+        let body = '';
+        req.on('data', chunk => {
+            body += chunk.toString();
+        });
+        req.on('end', async () => {
             try {
-                const response = await fetch('https://proxyserver2-sandy.vercel.app/api/trigger-workflow', {
+                const parsedBody = JSON.parse(body);
+                const { url } = parsedBody;
+
+                const apiKey = process.env.GITHUB_API_KEY;
+                const data = JSON.stringify({
+                    ref: 'main',
+                    inputs: { url: url }
+                });
+                const githubUrl = 'https://api.github.com/repos/pietupai/hae/actions/workflows/update-request.yml/dispatches';
+
+                const response = await fetch(githubUrl, {
                     method: 'POST',
                     headers: {
-                        'Content-Type': 'application/json'
+                        'Content-Type': 'application/json',
+                        'Authorization': `token ${apiKey}`
                     },
-                    body: JSON.stringify({ url: urlInput })
+                    body: data
                 });
-
                 if (response.ok) {
-                    const result = await response.json();
-                    responseMessage.textContent = `Success: ${JSON.stringify(result)}`;
+                    res.status(200).json({ message: 'Request sent successfully!' });
                 } else {
-                    const errorText = await response.text();
-                    responseMessage.textContent = `Error: ${errorText}`;
+                    const text = await response.text();
+                    res.status(response.status).json({ error: `Error sending the request: ${text}` });
                 }
             } catch (error) {
-                responseMessage.textContent = `Request failed: ${error.message}`;
+                res.status(500).json({ error: `Error sending the request: ${error.message}` });
             }
-        };
-    </script>
-</body>
-</html>
+        });
+    } else if (req.method === 'GET') {
+        res.status(200).send('Use POST');
+    } else {
+        res.status(405).send('Method Not Allowed');
+    }
+};
