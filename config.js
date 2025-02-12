@@ -11,7 +11,7 @@ module.exports = {
   ],
   allowedDestinations: [
     //'https://www.google.com',
-    //'https://www.example.com'
+    'https://www.example.com'
   ],
   disallowedDestinations: [
     'https://www.disallowed-destination.com',
