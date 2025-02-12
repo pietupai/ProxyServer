@@ -28,7 +28,7 @@ module.exports = async (req, res) => {
         }
 
         // Check if the origin is allowed
-        if (config.allowedOrigins.length > 0 && origin !== '' && !config.allowedOrigins.includes(origin)) {
+        if (config.allowedOrigins.length > 0 && !config.allowedOrigins.includes(origin)) {
             console.log(`Not allowed origin: ${origin}`);
             res.status(403).json({ error: `This origin is not allowed to access the proxy. Origin: ${origin}` });
             return;
@@ -55,8 +55,8 @@ module.exports = async (req, res) => {
                 return;
             }
 
-            // Check if the destination URL is allowed
-            if (config.allowedDestinations.length > 0 && !config.allowedDestinations.includes(url)) {
+            // Check if the destination URL is allowed or if the origin is missing (local requests)
+            if (config.allowedDestinations.length > 0 && !config.allowedDestinations.includes(url) && origin !== '') {
                 console.log(`Not allowed destination URL: ${url}`);
                 res.status(403).json({ error: `This URL is not allowed to be proxied. URL: ${url}` });
                 return;
@@ -69,3 +69,13 @@ module.exports = async (req, res) => {
                 res.status(response.status).send(content);
             } catch (error) {
                 console.error(`Error fetching the URL: ${error.message}`);
+                res.status(500).json({ error: `Error fetching the URL: ${error.message}` });
+            }
+        } else {
+            res.status(405).send('Method Not Allowed');
+        }
+    } catch (error) {
+        console.error(`Error in handling request: ${error.message}`);
+        res.status(500).json({ error: `Internal server error: ${error.message}` });
+    }
+};
