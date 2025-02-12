@@ -17,6 +17,8 @@ module.exports = async (req, res) => {
 
     if (req.method === 'GET') {
         console.log('Received a GET request');
+        console.log('Query:', req.query);
+        console.log('Headers:', req.headers);
 
         const { url } = req.query;
         if (!url) {
