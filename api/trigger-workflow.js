@@ -1,7 +1,6 @@
 const fetch = require('node-fetch');
 
 module.exports = async (req, res) => {
-    // Ensure request body is parsed correctly
     if (req.method === 'POST') {
         let body = '';
         req.on('data', chunk => {
@@ -12,8 +11,7 @@ module.exports = async (req, res) => {
                 const parsedBody = JSON.parse(body);
                 const { url } = parsedBody;
 
-                // Your existing code with updated GitHub username
-                const apiKey = process.env.GITHUB_API_KEY; // Ensure you set this in your Vercel environment variables
+                const apiKey = process.env.GITHUB_API_KEY;
                 const data = JSON.stringify({
                     ref: 'main',
                     inputs: { url: url }
@@ -38,8 +36,9 @@ module.exports = async (req, res) => {
                 res.status(500).send(`Error sending the request: ${error.message}`);
             }
         });
+    } else if (req.method === 'GET') {
+        res.status(200).send('Use POST');
     } else {
-        // Handle other methods if necessary
         res.status(405).send('Method Not Allowed');
     }
 };
