@@ -17,7 +17,7 @@ module.exports = async (req, res) => {
             'X-CSRF-Token, X-Requested-With, Accept, Accept-Version, Content-Length, Content-MD5, Content-Type, Date, X-Api-Version'
         );
 
-        const origin = req.headers.origin || 'Unknown Origin';
+        const origin = req.headers.origin || '';
         console.log(`Origin: ${origin}`);
 
         // Check if the origin is disallowed
