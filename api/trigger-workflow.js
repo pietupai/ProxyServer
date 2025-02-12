@@ -1,11 +1,15 @@
 const fetch = require('node-fetch');
-const cors = require('cors');
 
 module.exports = (req, res) => {
     // Enable CORS
     res.setHeader('Access-Control-Allow-Origin', '*');
     res.setHeader('Access-Control-Allow-Methods', 'GET,POST,OPTIONS');
     res.setHeader('Access-Control-Allow-Headers', 'Content-Type,Authorization');
+
+    if (req.method === 'OPTIONS') {
+        // Handle preflight requests
+        return res.status(200).end();
+    }
 
     const apiKey = process.env.GITHUB_API_KEY; // Ensure you set this in your Vercel environment variables
     const { url } = req.body;
