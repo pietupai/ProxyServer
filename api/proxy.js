@@ -16,17 +16,17 @@ module.exports = async (req, res) => {
         'X-CSRF-Token, X-Requested-With, Accept, Accept-Version, Content-Length, Content-MD5, Content-Type, Date, X-Api-Version'
     );
 
-    const origin = req.headers.origin;
+    const origin = req.headers.origin || 'Unknown Origin';
 
     // Check if the origin is disallowed
     if (config.disallowedOrigins.length > 0 && config.disallowedOrigins.includes(origin)) {
-        res.status(403).json({ error: `This origin is blacklisted from accessing the proxy: ${origin}` });
+        res.status(403).json({ error: `This origin is blacklisted from accessing the proxy. Origin: ${origin}` });
         return;
     }
 
     // Check if the origin is allowed
     if (config.allowedOrigins.length > 0 && !config.allowedOrigins.includes(origin)) {
-        res.status(403).json({ error: `This origin is not allowed to access the proxy: ${origin}` });
+        res.status(403).json({ error: `This origin is not allowed to access the proxy. Origin: ${origin}` });
         return;
     }
 
@@ -46,13 +46,13 @@ module.exports = async (req, res) => {
 
         // Check if the destination URL is blacklisted
         if (config.disallowedDestinations.length > 0 && config.disallowedDestinations.includes(url)) {
-            res.status(403).json({ error: `This URL is blacklisted from being proxied: ${url}` });
+            res.status(403).json({ error: `This URL is blacklisted from being proxied. URL: ${url}` });
             return;
         }
 
         // Check if the destination URL is allowed
         if (config.allowedDestinations.length > 0 && !config.allowedDestinations.includes(url)) {
-            res.status(403).json({ error: `This URL is not allowed to be proxied: ${url}` });
+            res.status(403).json({ error: `This URL is not allowed to be proxied. URL: ${url}` });
             return;
         }
 
