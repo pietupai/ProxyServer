@@ -1,0 +1,16 @@
+{
+  "version": 2,
+  "builds": [
+    {
+      "src": "api/trigger-workflow.js",
+      "use": "@vercel/node"
+    }
+  ],
+  "routes": [
+    {
+      "src": "/api/trigger-workflow",
+      "dest": "api/trigger-workflow.js",
+      "methods": ["POST"]
+    }
+  ]
+}
