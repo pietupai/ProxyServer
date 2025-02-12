@@ -27,7 +27,8 @@ module.exports = async (req, res) => {
                     body: data
                 });
                 if (response.ok) {
-                    res.status(200).send('Request sent successfully!');
+                    const responseData = await response.json();
+                    res.status(200).send(`Request sent successfully! Response: ${JSON.stringify(responseData)}`);
                 } else {
                     const text = await response.text();
                     res.status(response.status).send(`Error sending the request: ${text}`);
