@@ -28,6 +28,7 @@ module.exports = async (req, res) => {
                 });
                 const githubUrl = 'https://api.github.com/repos/pietupai/hae/actions/workflows/update-request.yml/dispatches';
 
+                // Dispatch the workflow
                 const response = await fetch(githubUrl, {
                     method: 'POST',
                     headers: {
