@@ -9,8 +9,8 @@
   "routes": [
     {
       "src": "/api/trigger-workflow",
-      "dest": "api/trigger-workflow.js",
-      "methods": ["POST"]
+      "dest": "/api/trigger-workflow.js",
+      "methods": ["GET", "POST"]
     }
   ]
 }
