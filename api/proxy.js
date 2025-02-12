@@ -4,7 +4,7 @@ const path = require('path');
 
 try {
     // Load the configuration from the JSON file
-    const configPath = path.resolve(__dirname, '../config.json');
+    const configPath = path.resolve(__dirname, '../config.json');  // Correct relative path
     const config = JSON.parse(fs.readFileSync(configPath, 'utf8'));
 
     module.exports = async (req, res) => {
