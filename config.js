@@ -1,7 +1,7 @@
 // config.js
 module.exports = {
   allowedOrigins: [
-    '', 
+    //'', 
     //'https://your-allowed-origin1.com',
     //'https://your-allowed-origin2.com'
     // 'https://another-allowed-origin.com' // Temporarily commented out
