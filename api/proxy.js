@@ -1,10 +1,8 @@
 const fetch = require('node-fetch');
-const fs = require('fs');
 const path = require('path');
 
-// Load the configuration from the JSON file
-const configPath = path.resolve(__dirname, '../config.json');
-const config = JSON.parse(fs.readFileSync(configPath, 'utf8'));
+// Load the configuration from the JavaScript file
+const config = require(path.resolve(__dirname, '../config.js'));
 
 module.exports = async (req, res) => {
     // Set CORS headers as per Vercel support suggestion
