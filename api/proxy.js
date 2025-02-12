@@ -1,3 +1,5 @@
+// api/proxy.js
+
 const fetch = require('node-fetch');
 const path = require('path');
 
@@ -57,6 +59,12 @@ module.exports = async (req, res) => {
             if (config.allowedDestinations.length > 0 && !config.allowedDestinations.includes(url)) {
                 console.log(`Not allowed destination URL: ${url}`);
                 res.status(403).json({ error: `This URL is not allowed to be proxied. URL: ${url}` });
+                return;
+            }
+
+            // Redirect to the URL if it is Google or any other search engine
+            if (url.startsWith('https://www.google.com') || url.startsWith('https://www.bing.com')) {
+                res.redirect(url);
                 return;
             }
 
