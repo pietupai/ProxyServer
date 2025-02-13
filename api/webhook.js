@@ -28,6 +28,11 @@ app.get('/api/sse', (req, res) => {
   res.setHeader('Cache-Control', 'no-cache');
   res.setHeader('Connection', 'keep-alive');
 
+  // Send "ping" every 25 seconds to keep the connection alive
+  const keepAlive = setInterval(() => {
+    res.write('data: ping\n\n');
+  }, 25000);
+
   // Listen for new webhook events
   const listener = (data) => {
     res.write(`data: ${data}\n\n`);
@@ -35,8 +40,9 @@ app.get('/api/sse', (req, res) => {
 
   eventEmitter.on('newWebhook', listener);
 
-  // Remove listener when connection is closed
+  // Remove listener and clear interval when connection is closed
   req.on('close', () => {
+    clearInterval(keepAlive);
     eventEmitter.removeListener('newWebhook', listener);
   });
 });
