@@ -21,12 +21,21 @@ export default async (req, res) => {
       const responseData = JSON.parse(stdout);
       const decodedContent = Buffer.from(responseData.content, 'base64').toString('utf-8');
 
+      // Lisää CORS-otsikot
+      res.setHeader('Access-Control-Allow-Origin', '*');
+      res.setHeader('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, PATCH, OPTIONS');
+      res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization, X-Requested-With');
+
       res.status(200).json({ message: decodedContent });
     } catch (error) {
       console.error('Error:', error);
       res.status(500).json({ message: 'Error triggering workflow' });
     }
   } else {
+    // Lisää CORS-otsikot
+    res.setHeader('Access-Control-Allow-Origin', '*');
+    res.setHeader('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, PATCH, OPTIONS');
+    res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization, X-Requested-With');
     res.status(405).json({ message: 'Method not allowed' });
   }
 };
