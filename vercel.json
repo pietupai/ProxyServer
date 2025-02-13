@@ -83,15 +83,5 @@
         "Access-Control-Allow-Headers": "Content-Type, Authorization, X-Requested-With"
       }
     }
-  ],
-  "functions": {
-    "api/sse.js": {
-      "memory": 3009,
-      "maxDuration": 30
-    },
-    "api/*.js": {
-      "memory": 3009,
-      "maxDuration": 30
-    }
-  }
+  ]
 }
