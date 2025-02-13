@@ -12,6 +12,10 @@
     {
       "src": "api/fetch-proxy.js",
       "use": "@vercel/node"
+    },
+    {
+      "src": "api/get-response.js",
+      "use": "@vercel/node"
     }
   ],
   "routes": [
@@ -35,6 +39,14 @@
       "src": "/api/fetch-proxy",
       "dest": "api/fetch-proxy.js",
       "methods": ["GET", "OPTIONS"],
+      "headers": {
+        "Access-Control-Allow-Origin": "*"
+      }
+    },
+    {
+      "src": "/api/get-response",
+      "dest": "api/get-response.js",
+      "methods": ["GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS"],
       "headers": {
         "Access-Control-Allow-Origin": "*"
       }
