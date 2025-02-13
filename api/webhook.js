@@ -1,19 +1,25 @@
 const express = require('express');
 const bodyParser = require('body-parser');
 const events = require('events');
+const fetch = require('node-fetch');
 
 const app = express();
 app.use(bodyParser.json());
 
 const eventEmitter = new events.EventEmitter();
 
-app.post('/api/webhook', (req, res) => {
+app.post('/api/webhook', async (req, res) => {
   try {
     const body = req.body;
     console.log('Webhook event received:', body);
 
-    // Emit event for SSE clients
-    eventEmitter.emit('newWebhook', JSON.stringify(body));
+    // Fetch the updated response.txt content
+    const response = await fetch('https://api.github.com/repos/pietupai/hae/contents/response.txt');
+    const data = await response.json();
+    const decodedContent = Buffer.from(data.content, 'base64').toString('utf8');
+
+    // Emit event with the updated content
+    eventEmitter.emit('newWebhook', decodedContent);
 
     res.status(200).json({ message: 'Webhook received successfully' });
   } catch (error) {
@@ -46,6 +52,11 @@ app.get('/api/sse', (req, res) => {
     clearInterval(keepAlive);
     eventEmitter.removeListener('newWebhook', listener);
   });
+});
+
+const PORT = process.env.PORT || 3000;
+app.listen(PORT, () => {
+  console.log(`Server is running on port ${PORT}`);
 });
 
 module.exports = app;
