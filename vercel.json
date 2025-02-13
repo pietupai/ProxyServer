@@ -81,8 +81,12 @@
         "Access-Control-Allow-Origin": "*",
         "Access-Control-Allow-Methods": "GET",
         "Access-Control-Allow-Headers": "Content-Type, Authorization, X-Requested-With"
-      },
+      }
+    }
+  ],
+  "functions": {
+    "api/sse.js": {
       "maxDuration": 60
     }
-  ]
+  }
 }
