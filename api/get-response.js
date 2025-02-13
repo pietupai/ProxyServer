@@ -13,13 +13,26 @@ export default async (req, res) => {
         -H "Authorization: token ${process.env.GH_TOKEN_HAE}" \
         -d '{"event_type": "trigger-workflow", "client_payload": {"url": "${url}"}}'`);
 
-      // Odotetaan hetki, että workflow suoritetaan
-      await new Promise(resolve => setTimeout(resolve, 20000)); // Odota 20 sekuntia
+      // Pollaa response.txt tiedostoa useita kertoja lyhyemmillä väleillä
+      const maxPollCount = 10;
+      const pollDelay = 5000; // 5 sekuntia
+      let pollCount = 0;
+      let decodedContent = '';
 
-      // Hae tuorein response.txt sisältö
-      const { stdout } = await execPromise('curl https://api.github.com/repos/pietupai/hae/contents/response.txt');
-      const responseData = JSON.parse(stdout);
-      const decodedContent = Buffer.from(responseData.content, 'base64').toString('utf-8');
+      while (pollCount < maxPollCount) {
+        // Odota ennen seuraavaa polling-kutsua
+        await new Promise(resolve => setTimeout(resolve, pollDelay));
+        pollCount++;
+
+        const { stdout } = await execPromise('curl https://api.github.com/repos/pietupai/hae/contents/response.txt');
+        const responseData = JSON.parse(stdout);
+        decodedContent = Buffer.from(responseData.content, 'base64').toString('utf-8');
+
+        // Tarkista, onko tiedoston sisältö päivitetty
+        if (decodedContent) {
+          break;
+        }
+      }
 
       // Lisää CORS-otsikot
       res.setHeader('Access-Control-Allow-Origin', '*');
