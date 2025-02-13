@@ -16,10 +16,6 @@
     {
       "src": "api/get-response.js",
       "use": "@vercel/node"
-    },
-    {
-      "src": "api/webhook.js",
-      "use": "@vercel/node"
     }
   ],
   "routes": [
@@ -60,26 +56,6 @@
       "headers": {
         "Access-Control-Allow-Origin": "*",
         "Access-Control-Allow-Methods": "GET, POST, PUT, DELETE, PATCH, OPTIONS",
-        "Access-Control-Allow-Headers": "Content-Type, Authorization, X-Requested-With"
-      }
-    },
-    {
-      "src": "/api/webhook",
-      "dest": "api/webhook.js",
-      "methods": ["POST", "OPTIONS"],
-      "headers": {
-        "Access-Control-Allow-Origin": "*",
-        "Access-Control-Allow-Methods": "POST, OPTIONS",
-        "Access-Control-Allow-Headers": "Content-Type, Authorization, X-Requested-With"
-      }
-    },
-    {
-      "src": "/api/sse",
-      "dest": "api/webhook.js",
-      "methods": ["GET"],
-      "headers": {
-        "Access-Control-Allow-Origin": "*",
-        "Access-Control-Allow-Methods": "GET",
         "Access-Control-Allow-Headers": "Content-Type, Authorization, X-Requested-With"
       }
     }
