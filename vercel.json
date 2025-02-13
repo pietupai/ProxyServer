@@ -8,6 +8,10 @@
     {
       "src": "api/proxy.js",
       "use": "@vercel/node"
+    },
+    {
+      "src": "api/fetch-proxy.js",
+      "use": "@vercel/node"
     }
   ],
   "routes": [
@@ -22,6 +26,14 @@
     {
       "src": "/api/proxy",
       "dest": "api/proxy.js",
+      "methods": ["GET", "OPTIONS"],
+      "headers": {
+        "Access-Control-Allow-Origin": "*"
+      }
+    },
+    {
+      "src": "/api/fetch-proxy",
+      "dest": "api/fetch-proxy.js",
       "methods": ["GET", "OPTIONS"],
       "headers": {
         "Access-Control-Allow-Origin": "*"
