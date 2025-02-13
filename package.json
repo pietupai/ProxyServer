@@ -5,6 +5,8 @@
   "license": "MIT",
   "dependencies": {
     "node-fetch": "^2.6.1",
-    "cors": "^2.8.5"
+    "cors": "^2.8.5",
+    "express": "^4.17.1",
+    "body-parser": "^1.19.0"
   }
 }
