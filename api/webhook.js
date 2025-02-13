@@ -35,6 +35,7 @@ app.get('/api/sse', (req, res) => {
 
   // Listen for new webhook events
   const listener = (data) => {
+    console.log('Sending data to SSE client:', data);
     res.write(`data: ${data}\n\n`);
   };
 
