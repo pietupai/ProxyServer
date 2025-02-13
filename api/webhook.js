@@ -13,6 +13,9 @@ app.post('/api/webhook', async (req, res) => {
     const body = req.body;
     console.log('Webhook event received:', body);
 
+    // Emit event for SSE clients
+    eventEmitter.emit('newWebhook', JSON.stringify(body));
+
     // Fetch the updated response.txt content
     const response = await fetch('https://api.github.com/repos/pietupai/hae/contents/response.txt');
     const data = await response.json();
