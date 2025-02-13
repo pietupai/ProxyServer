@@ -1,8 +1,9 @@
 import fetch from 'node-fetch';
 
+const apiKey = process.env.GITHUB_API_KEY;
+
 export default async (req, res) => {
     const { url } = req.query;
-    const token = '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';
 
     if (!url) {
         return res.status(400).json({ error: 'Missing URL parameter' });
@@ -11,7 +12,7 @@ export default async (req, res) => {
     try {
         const response = await fetch(url, {
             headers: {
-                'Authorization': `token ${token}`
+                'Authorization': `token ${apiKey}`
             }
         });
         const data = await response.text();
