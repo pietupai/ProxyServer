@@ -3,11 +3,17 @@ const path = require('path');
 const app = express();
 const port = process.env.PORT || 3000;
 
+app.use((req, res, next) => {
+    res.setHeader('Access-Control-Allow-Origin', '*');
+    res.setHeader('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, PATCH, OPTIONS');
+    res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization, X-Requested-With');
+    next();
+});
+
 app.get('/events', (req, res) => {
     res.setHeader('Content-Type', 'text/event-stream');
     res.setHeader('Cache-Control', 'no-cache');
     res.setHeader('Connection', 'keep-alive');
-    res.setHeader('Access-Control-Allow-Origin', '*'); // Salli kaikki alueet
 
     // Lähetetään data heti ensimmäisen kerran
     res.write(`data: ${new Date().toLocaleTimeString()}\n\n`);
