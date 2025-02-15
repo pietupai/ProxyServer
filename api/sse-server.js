@@ -1,5 +1,6 @@
 const express = require('express');
 const path = require('path');
+const { DateTime } = require('luxon');
 const app = express();
 const port = process.env.PORT || 3000;
 
@@ -20,15 +21,13 @@ app.get('/api/events', (req, res) => {
     res.setHeader('Cache-Control', 'no-cache');
     res.setHeader('Connection', 'keep-alive');
 
-    // Lähetetään data heti ensimmäisen kerran
-    res.write(`data: ${new Date().toLocaleTimeString()}\n\n`);
-
-    // Lähetetään data 5 sekunnin välein tarkasti
+    // Funktio lähettämään aikaa Suomen aikavyöhykkeellä
     const sendServerTime = () => {
-        res.write(`data: ${new Date().toLocaleTimeString()}\n\n`);
+        const now = DateTime.now().setZone('Europe/Helsinki').toLocaleString(DateTime.TIME_WITH_SECONDS);
+        res.write(`data: ${now}\n\n`);
     };
 
-    // Kutsu aluksi ja sitten 5 sekunnin välein
+    // Lähetetään data heti ensimmäisen kerran
     sendServerTime();
     const intervalId = setInterval(sendServerTime, 5000);
 
