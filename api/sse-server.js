@@ -21,6 +21,7 @@ app.get('/api/events', (req, res) => {
     res.setHeader('Cache-Control', 'no-cache');
     res.setHeader('Connection', 'keep-alive');
 
+    console.log('SSE connection established');
     // Funktio lähettämään aikaa Suomen aikavyöhykkeellä ja kulunut aika
     let previousTime = Date.now();
 
@@ -40,6 +41,7 @@ app.get('/api/events', (req, res) => {
     //const keepAliveId = setInterval(() => { res.write(': keep-alive\n\n');  }, 15000);
 
     req.on('close', () => {
+        console.log('SSE connection closed');
         clearInterval(intervalId);
         clearInterval(keepAliveId);
     });
