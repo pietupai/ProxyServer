@@ -39,7 +39,7 @@ app.get('/api/events', (req, res) => {
     const intervalId = setInterval(() => { sendServerTime(); }, 5000);
 
     // Lähetetään keep-alive viesti 15 sekunnin välein
-    //const keepAliveId = setInterval(() => { res.write(': keep-alive\n\n');  }, 15000);
+    const keepAliveId = setInterval(() => { res.write(': keep-alive\n\n');  }, 15000);
 
     req.on('close', () => {
         console.log('SSE connection closed');
