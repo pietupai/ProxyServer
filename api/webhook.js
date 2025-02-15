@@ -49,7 +49,7 @@ app.get('/api/sse', (req, res) => {
     res.write(`data: ${data}\n\n`);
   };
 
-  eventEmitter.on('newWebhook', listener);
+  //eventEmitter.on('newWebhook', listener);
 
   req.on('close', () => {
     clearInterval(keepAlive);
@@ -63,4 +63,4 @@ app.listen(PORT, () => {
   console.log(`Server is running on port ${PORT}`);
 });
 
-module.exports = app;
+//module.exports = app;
