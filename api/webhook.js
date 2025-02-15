@@ -42,7 +42,7 @@ app.get('/api/sse', (req, res) => {
     console.log('Keep-alive message sending');
     res.write(': keep-alive\n\n');
     console.log('Keep-alive message sent');
-  }, 15000);
+  }, 5000);
 
   const listener = (data) => {
     console.log('Sending data to SSE client:', data);
