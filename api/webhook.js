@@ -15,28 +15,32 @@ app.post('/api/webhook', async (req, res) => {
     const body = req.body;
     console.log('Webhook event received:', body);
 
-    eventEmitter.emit('newWebhook', JSON.stringify(body));
-
+    // Fetch the updated response.txt content
     const response = await fetch('https://api.github.com/repos/pietupai/hae/contents/response.txt');
     const data = await response.json();
     const decodedContent = Buffer.from(data.content, 'base64').toString('utf8');
 
+    // Emit event with the updated content
     eventEmitter.emit('newWebhook', decodedContent);
 
-    res.status(200).json({ message: 'Webhook received successfully' });
+    res.status(200).send(decodedContent);
   } catch (error) {
     console.error('Error handling webhook:', error);
     res.status(500).json({ message: 'Error handling webhook' });
   }
 });
 
+// SSE endpoint with additional logging
 app.get('/api/sse', (req, res) => {
   res.setHeader('Content-Type', 'text/event-stream');
   res.setHeader('Cache-Control', 'no-cache');
   res.setHeader('Connection', 'keep-alive');
+  
+  console.log('SSE connection established');
 
   const keepAlive = setInterval(() => {
     res.write(': keep-alive\n\n');
+    console.log('Keep-alive message sent');
   }, 15000);
 
   const listener = (data) => {
@@ -49,6 +53,7 @@ app.get('/api/sse', (req, res) => {
   req.on('close', () => {
     clearInterval(keepAlive);
     eventEmitter.removeListener('newWebhook', listener);
+    console.log('SSE connection closed');
   });
 });
 
