@@ -49,7 +49,7 @@ app.get('/api/sse', (req, res) => {
     res.write(`data: ${data}\n\n`);
   };
 
-  //eventEmitter.on('newWebhook', listener);
+  eventEmitter.on('newWebhook', listener);
 
   req.on('close', () => {
     clearInterval(keepAlive);
