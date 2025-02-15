@@ -31,30 +31,37 @@ app.post('/api/webhook', async (req, res) => {
 });
 
 // SSE endpoint with additional logging
-app.get('/api/sse', (req, res) => {
-  res.setHeader('Content-Type', 'text/event-stream');
-  res.setHeader('Cache-Control', 'no-cache');
-  res.setHeader('Connection', 'keep-alive');
+app.get('/api/events', (req, res) => {
+    res.setHeader('Content-Type', 'text/event-stream');
+    res.setHeader('Cache-Control', 'no-cache');
+    res.setHeader('Connection', 'keep-alive');
 
-  console.log('SSE connection established');
+    // Funktio lähettämään aikaa Suomen aikavyöhykkeellä ja kulunut aika
+    let previousTime = Date.now();
 
-  const keepAlive = setInterval(() => {
-    res.write(': keep-alive\n\n');
-    console.log('Keep-alive message sent');
-  }, 15000);
+    const sendServerTime = () => {
+        const now = DateTime.now().setZone('Europe/Helsinki').toLocaleString(DateTime.TIME_WITH_SECONDS);
+        const currentTime = Date.now();
+        const elapsed = ((currentTime - previousTime) / 1000).toFixed(2);
+        res.write(`data: Server time: ${now} - elapsed: ${elapsed}s\n\n`);
+        previousTime = currentTime;
+    };
 
-  const listener = (data) => {
-    console.log('Sending data to SSE client:', data);
-    res.write(`data: ${data}\n\n`);
-  };
+    // Lähetetään data heti ensimmäisen kerran
+    sendServerTime();
+    const intervalId = setInterval(() => {
+        sendServerTime();
+    }, 5000);
 
-  eventEmitter.on('newWebhook', listener);
+    // Lähetetään keep-alive viesti 15 sekunnin välein
+    const keepAliveId = setInterval(() => {
+        res.write(': keep-alive\n\n');
+    }, 15000);
 
-  req.on('close', () => {
-    clearInterval(keepAlive);
-    eventEmitter.removeListener('newWebhook', listener);
-    console.log('SSE connection closed');
-  });
+    req.on('close', () => {
+        clearInterval(intervalId);
+        clearInterval(keepAliveId);
+    });
 });
 
 const PORT = process.env.PORT || 3000;
