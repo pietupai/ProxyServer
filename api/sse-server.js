@@ -23,10 +23,14 @@ app.get('/api/events', (req, res) => {
     // Lähetetään data heti ensimmäisen kerran
     res.write(`data: ${new Date().toLocaleTimeString()}\n\n`);
 
-    // Lähetetään data 5 sekunnin välein
+    // Lähetetään data 5 sekunnin välein tarkasti
+    let startTime = Date.now();
     const intervalId = setInterval(() => {
-        res.write(`data: ${new Date().toLocaleTimeString()}\n\n`);
+        const currentTime = Date.now();
+        const elapsed = ((currentTime - startTime) / 1000).toFixed(2);
+        res.write(`data: ${new Date().toLocaleTimeString()} - elapsed: ${elapsed}s\n\n`);
         res.flush();
+        startTime = currentTime;
     }, 5000);
 
     // Lähetetään keep-alive viesti 15 sekunnin välein
