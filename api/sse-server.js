@@ -1,7 +1,11 @@
 const express = require('express');
 const path = require('path');
+const compression = require('compression');
 const app = express();
 const port = process.env.PORT || 3000;
+
+// Ota käyttöön kompressio ja flush
+app.use(compression());
 
 // Set CORS headers as per Vercel support suggestion
 app.use((req, res, next) => {
