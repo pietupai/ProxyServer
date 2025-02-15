@@ -1,10 +1,12 @@
 const express = require('express');
 const bodyParser = require('body-parser');
+const cors = require('cors');
 const events = require('events');
 const fetch = require('node-fetch');
 
 const app = express();
 app.use(bodyParser.json());
+app.use(cors());
 
 const eventEmitter = new events.EventEmitter();
 
@@ -37,10 +39,10 @@ app.get('/api/sse', (req, res) => {
   res.setHeader('Cache-Control', 'no-cache');
   res.setHeader('Connection', 'keep-alive');
 
-  const keepAliveId = setInterval(() => {
-    res.write(': keep-alive\n\n');
-  }, 15000);
-
+  // Send "ping" every 25 seconds to keep the connection alive
+  const keepAlive = setInterval(() => {
+    res.write('data: ping\n\n');
+  }, 25000);
 
   // Listen for new webhook events
   const listener = (data) => {
