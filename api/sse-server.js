@@ -1,11 +1,7 @@
 const express = require('express');
 const path = require('path');
-const compression = require('compression');
 const app = express();
 const port = process.env.PORT || 3000;
-
-// Ota käyttöön kompressio ja flush
-app.use(compression());
 
 // Set CORS headers as per Vercel support suggestion
 app.use((req, res, next) => {
@@ -33,14 +29,12 @@ app.get('/api/events', (req, res) => {
         const currentTime = Date.now();
         const elapsed = ((currentTime - startTime) / 1000).toFixed(2);
         res.write(`data: ${new Date().toLocaleTimeString()} - elapsed: ${elapsed}s\n\n`);
-        res.flush();
         startTime = currentTime;
     }, 5000);
 
     // Lähetetään keep-alive viesti 15 sekunnin välein
     const keepAliveId = setInterval(() => {
-        res.write(':\n\n');
-        res.flush();
+        res.write(': keep-alive\n\n');
     }, 15000);
 
     req.on('close', () => {
