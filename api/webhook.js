@@ -40,7 +40,7 @@ app.get('/api/sse', (req, res) => {
 
   const keepAlive = setInterval(() => {
     console.log('Keep-alive message sending');
-    res.write(': keep-alive\n\n');
+    res.write('keep-alive');
     console.log('Keep-alive message sent');
   }, 5000);
 
