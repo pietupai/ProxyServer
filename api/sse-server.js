@@ -34,7 +34,7 @@ app.get('/api/events', (req, res) => {
         console.log('SSE message sended');
     };
 
-    sendServerTime();
+    //sendServerTime();
     const intervalId = setInterval(sendServerTime, 10000); // 10 sekunnin välein
 
     req.on('close', () => {
