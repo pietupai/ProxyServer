@@ -31,7 +31,7 @@ app.post('/api/webhook', async (req, res) => {
 });
 
 // SSE endpoint with additional logging
-app.get('/api/events', (req, res) => {
+app.get('/api/sse', (req, res) => {
     res.setHeader('Content-Type', 'text/event-stream');
     res.setHeader('Cache-Control', 'no-cache');
     res.setHeader('Connection', 'keep-alive');
