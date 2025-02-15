@@ -31,6 +31,7 @@ app.get('/api/events', (req, res) => {
         const elapsed = ((currentTime - previousTime) / 1000).toFixed(2);
         res.write(`data: Server time: ${now} - elapsed: ${elapsed}s\n\n`);
         previousTime = currentTime;
+        console.log('SSE message sended');
     };
 
     sendServerTime();
