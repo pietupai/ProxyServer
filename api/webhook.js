@@ -5,7 +5,7 @@ const events = require('events');
 const fetch = require('node-fetch');
 
 const app = express();
-app.use(bodyParser.json());
+app.use(bodyParser.text());
 app.use(cors());
 
 const eventEmitter = new events.EventEmitter();
@@ -26,7 +26,7 @@ app.post('/api/webhook', async (req, res) => {
     res.status(200).send(decodedContent);
   } catch (error) {
     console.error('Error handling webhook:', error);
-    res.status(500).json({ message: 'Error handling webhook' });
+    res.status(500).send('Error handling webhook');
   }
 });
 
