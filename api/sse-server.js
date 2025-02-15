@@ -37,7 +37,7 @@ app.get('/api/events', (req, res) => {
     const intervalId = setInterval(sendServerTime, 10000); // 10 sekunnin välein
 
     req.on('close', () => {
-        console.log('SSE connection closed');
+        console.log('SSE connection closed ');
         clearInterval(intervalId);
     });
 });
