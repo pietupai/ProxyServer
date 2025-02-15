@@ -6,6 +6,8 @@ const fetch = require('node-fetch');
 
 const app = express();
 app.use(bodyParser.json());
+
+// Use CORS with default options
 app.use(cors());
 
 const eventEmitter = new events.EventEmitter();
