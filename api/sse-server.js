@@ -36,12 +36,12 @@ app.get('/api/events', (req, res) => {
     sendServerTime();
     const intervalId = setInterval(() => {
         sendServerTime();
-    }, 5000);
+    }, 10000);
 
     // Lähetetään keep-alive viesti 15 sekunnin välein
     const keepAliveId = setInterval(() => {
         res.write(': keep-alive\n\n');
-    }, 15000);
+    }, 5000);
 
     req.on('close', () => {
         clearInterval(intervalId);
