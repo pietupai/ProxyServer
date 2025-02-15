@@ -2,19 +2,11 @@
   "version": 2,
   "builds": [
     {
-      "src": "api/trigger-workflow.js",
+      "src": "api/sse-server.js",
       "use": "@vercel/node"
     },
     {
-      "src": "api/proxy.js",
-      "use": "@vercel/node"
-    },
-    {
-      "src": "api/fetch-proxy.js",
-      "use": "@vercel/node"
-    },
-    {
-      "src": "api/get-response.js",
+      "src": "api/webhook.js",
       "use": "@vercel/node"
     }
   ],
@@ -22,7 +14,7 @@
     {
       "src": "/api/trigger-workflow",
       "dest": "api/trigger-workflow.js",
-      "methods": ["GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS"],
+      "methods": ["GET", "POST", "PUT, DELETE, PATCH, OPTIONS"],
       "headers": {
         "Access-Control-Allow-Origin": "*",
         "Access-Control-Allow-Methods": "GET, POST, PUT, DELETE, PATCH, OPTIONS",
@@ -32,7 +24,7 @@
     {
       "src": "/api/proxy",
       "dest": "api/proxy.js",
-      "methods": ["GET", "OPTIONS"],
+      "methods": ["GET, OPTIONS"],
       "headers": {
         "Access-Control-Allow-Origin": "*",
         "Access-Control-Allow-Methods": "GET, OPTIONS",
@@ -42,7 +34,7 @@
     {
       "src": "/api/fetch-proxy",
       "dest": "api/fetch-proxy.js",
-      "methods": ["GET", "OPTIONS"],
+      "methods": ["GET, OPTIONS"],
       "headers": {
         "Access-Control-Allow-Origin": "*",
         "Access-Control-Allow-Methods": "GET, OPTIONS",
@@ -52,10 +44,50 @@
     {
       "src": "/api/get-response",
       "dest": "api/get-response.js",
-      "methods": ["GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS"],
+      "methods": ["GET, POST, PUT, DELETE, PATCH, OPTIONS"],
       "headers": {
         "Access-Control-Allow-Origin": "*",
         "Access-Control-Allow-Methods": "GET, POST, PUT, DELETE, PATCH, OPTIONS",
+        "Access-Control-Allow-Headers": "Content-Type, Authorization, X-Requested-With"
+      }
+    },
+    {
+      "src": "/api/events",
+      "dest": "api/sse-server.js",
+      "methods": ["GET, OPTIONS"],
+      "headers": {
+        "Access-Control-Allow-Origin": "*",
+        "Access-Control-Allow-Methods": "GET, OPTIONS",
+        "Access-Control-Allow-Headers": "Content-Type, Authorization, X-Requested-With"
+      }
+    },
+    {
+      "src": "/sse-index",
+      "dest": "api/sse-server.js",
+      "methods": ["GET"],
+      "headers": {
+        "Access-Control-Allow-Origin": "*",
+        "Access-Control-Allow-Methods": "GET",
+        "Access-Control-Allow-Headers": "Content-Type"
+      }
+    },
+    {
+      "src": "/api/webhook",
+      "dest": "api/webhook.js",
+      "methods": ["POST"],
+      "headers": {
+        "Access-Control-Allow-Origin": "*",
+        "Access-Control-Allow-Methods": "POST",
+        "Access-Control-Allow-Headers": "Content-Type, Authorization, X-Requested-With"
+      }
+    },
+    {
+      "src": "/api/sse",
+      "dest": "api/webhook.js",
+      "methods": ["GET"],
+      "headers": {
+        "Access-Control-Allow-Origin": "*",
+        "Access-Control-Allow-Methods": "GET",
         "Access-Control-Allow-Headers": "Content-Type, Authorization, X-Requested-With"
       }
     }
