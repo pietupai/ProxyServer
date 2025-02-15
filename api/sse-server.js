@@ -30,12 +30,13 @@ app.get('/api/events', (req, res) => {
         const currentTime = Date.now();
         const elapsed = ((currentTime - previousTime) / 1000).toFixed(2);
         res.write(`data: Server time: ${now} - elapsed: ${elapsed}s\n\n`);
+        res.write(`data: Server time: ${now} - elapsed: ${elapsed}s\n\n`);
         previousTime = currentTime;
     };
 
     // Lähetetään data heti ensimmäisen kerran
     sendServerTime();
-    const intervalId = setInterval(() => { sendServerTime(); }, 10000);
+    const intervalId = setInterval(() => { sendServerTime(); }, 5000);
 
     // Lähetetään keep-alive viesti 15 sekunnin välein
     //const keepAliveId = setInterval(() => { res.write(': keep-alive\n\n');  }, 15000);
