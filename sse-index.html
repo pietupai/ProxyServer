@@ -1,0 +1,18 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SSE Demo</title>
+</head>
+<body>
+    <h1>SSE Demo</h1>
+    <div id="time"></div>
+    <script>
+        const eventSource = new EventSource('https://proxyserver2-sandy.vercel.app/api/events');
+        eventSource.onmessage = function(event) {
+            document.getElementById('time').innerText = 'Server time: ' + event.data;
+        };
+    </script>
+</body>
+</html>
