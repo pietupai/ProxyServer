@@ -23,7 +23,6 @@ app.get('/api/events', (req, res) => {
     res.flushHeaders();
     
     console.log('SSE connection established');
-    // Funktio lähettämään aikaa Suomen aikavyöhykkeellä ja kulunut aika
     let previousTime = Date.now();
 
     const sendServerTime = () => {
@@ -34,29 +33,15 @@ app.get('/api/events', (req, res) => {
         previousTime = currentTime;
     };
 
-    // Lähetetään data heti ensimmäisen kerran
     sendServerTime();
-    const intervalId = setInterval(() => { sendServerTime(); }, 5000);
-
-    // Lähetetään keep-alive viesti 15 sekunnin välein
-    const keepAliveId = setInterval(() => { res.write(': keep-alive\n\n');  }, 15000);
+    const intervalId = setInterval(sendServerTime, 10000); // 10 sekunnin välein
 
     req.on('close', () => {
         console.log('SSE connection closed');
         clearInterval(intervalId);
-        clearInterval(keepAliveId);
     });
 });
 
-app.get('/sse-index', (req, res) => {
-    res.sendFile(path.join(__dirname, '../sse-index.html'));
-});
-
-// Tarjoa favicon
-app.get('/favicon.ico', (req, res) => {
-    res.sendFile(path.join(__dirname, '../favicon.ico'));
-});
-
 app.listen(port, () => {
-    console.log(`SSE-palvelin käynnissä osoitteessa http://localhost:${port}`);
+    console.log(`SSE server running on http://localhost:${port}`);
 });
