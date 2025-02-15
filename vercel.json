@@ -16,6 +16,10 @@
     {
       "src": "api/get-response.js",
       "use": "@vercel/node"
+    },
+    {
+      "src": "api/sse-server.js",
+      "use": "@vercel/node"
     }
   ],
   "routes": [
@@ -59,5 +63,25 @@
         "Access-Control-Allow-Headers": "Content-Type, Authorization, X-Requested-With"
       }
     },
+    {
+      "src": "/api/events",
+      "dest": "api/sse-server.js",
+      "methods": ["GET, OPTIONS"],
+      "headers": {
+        "Access-Control-Allow-Origin": "*",
+        "Access-Control-Allow-Methods": "GET, OPTIONS",
+        "Access-Control-Allow-Headers": "Content-Type, Authorization, X-Requested-With"
+      }
+    },
+    {
+      "src": "/sse-index",
+      "dest": "api/sse-server.js",
+      "methods": ["GET"],
+      "headers": {
+        "Access-Control-Allow-Origin": "*",
+        "Access-Control-Allow-Methods": "GET",
+        "Access-Control-Allow-Headers": "Content-Type"
+      }
+    }
   ]
 }
