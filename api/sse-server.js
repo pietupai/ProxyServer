@@ -21,10 +21,15 @@ app.get('/api/events', (req, res) => {
     res.setHeader('Cache-Control', 'no-cache');
     res.setHeader('Connection', 'keep-alive');
 
-    // Funktio lähettämään aikaa Suomen aikavyöhykkeellä
+    // Funktio lähettämään aikaa Suomen aikavyöhykkeellä ja kulunut aika
+    let previousTime = Date.now();
+
     const sendServerTime = () => {
         const now = DateTime.now().setZone('Europe/Helsinki').toLocaleString(DateTime.TIME_WITH_SECONDS);
-        res.write(`data: ${now}\n\n`);
+        const currentTime = Date.now();
+        const elapsed = ((currentTime - previousTime) / 1000).toFixed(2);
+        res.write(`data: Server time: ${now} - elapsed: ${elapsed}s\n\n`);
+        previousTime = currentTime;
     };
 
     // Lähetetään data heti ensimmäisen kerran
