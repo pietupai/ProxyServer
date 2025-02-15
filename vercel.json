@@ -24,10 +24,6 @@
     {
       "src": "api/webhook.js",
       "use": "@vercel/node"
-    },
-    {
-      "src": "api/sse.js",
-      "use": "@vercel/node"
     }
   ],
   "routes": [
@@ -103,7 +99,7 @@
     },
     {
       "src": "/api/sse",
-      "dest": "api/sse.js",
+      "dest": "api/webhook.js",
       "methods": ["GET"],
       "headers": {
         "Access-Control-Allow-Origin": "*",
