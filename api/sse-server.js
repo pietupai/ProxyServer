@@ -24,22 +24,16 @@ app.get('/api/events', (req, res) => {
     res.write(`data: ${new Date().toLocaleTimeString()}\n\n`);
 
     // Lähetetään data 5 sekunnin välein tarkasti
-    let startTime = Date.now();
-    const intervalId = setInterval(() => {
-        const currentTime = Date.now();
-        const elapsed = ((currentTime - startTime) / 1000).toFixed(2);
-        res.write(`data: ${new Date().toLocaleTimeString()} - elapsed: ${elapsed}s\n\n`);
-        startTime = currentTime;
-    }, 5000);
+    const sendServerTime = () => {
+        res.write(`data: ${new Date().toLocaleTimeString()}\n\n`);
+    };
 
-    // Lähetetään keep-alive viesti 15 sekunnin välein
-    const keepAliveId = setInterval(() => {
-        res.write(': keep-alive\n\n');
-    }, 15000);
+    // Kutsu aluksi ja sitten 5 sekunnin välein
+    sendServerTime();
+    const intervalId = setInterval(sendServerTime, 5000);
 
     req.on('close', () => {
         clearInterval(intervalId);
-        clearInterval(keepAliveId);
     });
 });
 
