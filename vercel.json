@@ -20,6 +20,14 @@
     {
       "src": "api/sse-server.js",
       "use": "@vercel/node"
+    },
+    {
+      "src": "api/webhook.js",
+      "use": "@vercel/node"
+    },
+    {
+      "src": "api/sse.js",
+      "use": "@vercel/node"
     }
   ],
   "routes": [
@@ -81,6 +89,26 @@
         "Access-Control-Allow-Origin": "*",
         "Access-Control-Allow-Methods": "GET",
         "Access-Control-Allow-Headers": "Content-Type"
+      }
+    },
+    {
+      "src": "/api/webhook",
+      "dest": "api/webhook.js",
+      "methods": ["POST"],
+      "headers": {
+        "Access-Control-Allow-Origin": "*",
+        "Access-Control-Allow-Methods": "POST",
+        "Access-Control-Allow-Headers": "Content-Type, Authorization, X-Requested-With"
+      }
+    },
+    {
+      "src": "/api/sse",
+      "dest": "api/sse.js",
+      "methods": ["GET"],
+      "headers": {
+        "Access-Control-Allow-Origin": "*",
+        "Access-Control-Allow-Methods": "GET",
+        "Access-Control-Allow-Headers": "Content-Type, Authorization, X-Requested-With"
       }
     }
   ]
