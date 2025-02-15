@@ -20,7 +20,8 @@ app.get('/api/events', (req, res) => {
     res.setHeader('Content-Type', 'text/event-stream');
     res.setHeader('Cache-Control', 'no-cache');
     res.setHeader('Connection', 'keep-alive');
-
+    res.flushHeaders();
+    
     console.log('SSE connection established');
     // Funktio lähettämään aikaa Suomen aikavyöhykkeellä ja kulunut aika
     let previousTime = Date.now();
@@ -30,7 +31,6 @@ app.get('/api/events', (req, res) => {
         const currentTime = Date.now();
         const elapsed = ((currentTime - previousTime) / 1000).toFixed(2);
         res.write(`data: Server time: ${now} - elapsed: ${elapsed}s\n\n`);
-        res.close();
         previousTime = currentTime;
     };
 
