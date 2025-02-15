@@ -37,10 +37,10 @@ app.get('/api/sse', (req, res) => {
   res.setHeader('Cache-Control', 'no-cache');
   res.setHeader('Connection', 'keep-alive');
 
-  // Send "ping" every 25 seconds to keep the connection alive
-  const keepAlive = setInterval(() => {
-    res.write('data: ping\n\n');
-  }, 25000);
+  const keepAliveId = setInterval(() => {
+    res.write(': keep-alive\n\n');
+  }, 15000);
+
 
   // Listen for new webhook events
   const listener = (data) => {
