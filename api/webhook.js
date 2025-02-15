@@ -17,15 +17,7 @@ app.post('/api/webhook', async (req, res) => {
 
     // Fetch the updated response.txt content
     const response = await fetch('https://api.github.com/repos/pietupai/hae/contents/response.txt');
-    if (!response.ok) {
-      throw new Error(`Failed to fetch response.txt: ${response.statusText}`);
-    }
-
     const data = await response.json();
-    if (!data.content) {
-      throw new Error('response.txt content is missing');
-    }
-
     const decodedContent = Buffer.from(data.content, 'base64').toString('utf8');
 
     // Emit event with the updated content
@@ -34,17 +26,16 @@ app.post('/api/webhook', async (req, res) => {
     res.status(200).send(decodedContent);
   } catch (error) {
     console.error('Error handling webhook:', error);
-    res.status(500).send(`Error handling webhook: ${error.message}`);
+    res.status(500).send('Error handling webhook');
   }
 });
 
 // SSE endpoint with additional logging
 app.get('/api/sse', (req, res) => {
-  console.log('Received request for /api/sse');
   res.setHeader('Content-Type', 'text/event-stream');
   res.setHeader('Cache-Control', 'no-cache');
   res.setHeader('Connection', 'keep-alive');
-  
+
   console.log('SSE connection established');
 
   const keepAlive = setInterval(() => {
@@ -57,11 +48,7 @@ app.get('/api/sse', (req, res) => {
     res.write(`data: ${data}\n\n`);
   };
 
-  // Add a log for each new webhook event received
-  eventEmitter.on('newWebhook', (data) => {
-    console.log('New webhook event received:', data);
-    listener(data);
-  });
+  eventEmitter.on('newWebhook', listener);
 
   req.on('close', () => {
     clearInterval(keepAlive);
