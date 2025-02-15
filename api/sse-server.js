@@ -34,7 +34,9 @@ app.get('/api/events', (req, res) => {
 
     // Lähetetään data heti ensimmäisen kerran
     sendServerTime();
-    const intervalId = setInterval(sendServerTime, 5000);
+    const intervalId = setInterval(() => {
+        sendServerTime();
+    }, 5000);
 
     req.on('close', () => {
         clearInterval(intervalId);
