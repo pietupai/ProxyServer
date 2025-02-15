@@ -24,9 +24,13 @@ app.get('/api/events', (req, res) => {
     res.write(`data: ${new Date().toLocaleTimeString()}\n\n`);
 
     // Lähetetään data 5 sekunnin välein
-    setInterval(() => {
+    const intervalId = setInterval(() => {
         res.write(`data: ${new Date().toLocaleTimeString()}\n\n`);
     }, 5000);
+
+    req.on('close', () => {
+        clearInterval(intervalId);
+    });
 });
 
 app.get('/sse-index', (req, res) => {
