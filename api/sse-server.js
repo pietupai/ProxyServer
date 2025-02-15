@@ -26,10 +26,18 @@ app.get('/api/events', (req, res) => {
     // Lähetetään data 5 sekunnin välein
     const intervalId = setInterval(() => {
         res.write(`data: ${new Date().toLocaleTimeString()}\n\n`);
+        res.flush();
     }, 5000);
+
+    // Lähetetään keep-alive viesti 15 sekunnin välein
+    const keepAliveId = setInterval(() => {
+        res.write(':\n\n');
+        res.flush();
+    }, 15000);
 
     req.on('close', () => {
         clearInterval(intervalId);
+        clearInterval(keepAliveId);
     });
 });
 
