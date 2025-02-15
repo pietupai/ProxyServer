@@ -16,10 +16,6 @@
     {
       "src": "api/get-response.js",
       "use": "@vercel/node"
-    },
-    {
-      "src": "api/sse-server.js",
-      "use": "@vercel/node"
     }
   ],
   "routes": [
