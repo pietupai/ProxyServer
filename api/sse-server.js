@@ -29,13 +29,13 @@ app.get('/api/events', (req, res) => {
     }, 5000);
 });
 
-app.get('/', (req, res) => {
-    res.sendFile(path.join(__dirname, 'index.html'));
+app.get('/sse-index', (req, res) => {
+    res.sendFile(path.join(__dirname, '../sse-index.html'));
 });
 
 // Tarjoa favicon
 app.get('/favicon.ico', (req, res) => {
-    res.sendFile(path.join(__dirname, 'favicon.ico'));
+    res.sendFile(path.join(__dirname, '../favicon.ico'));
 });
 
 app.listen(port, () => {
