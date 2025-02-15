@@ -1,87 +1,33 @@
-{
-  "version": 2,
-  "builds": [
-    {
-      "src": "api/trigger-workflow.js",
-      "use": "@vercel/node"
-    },
-    {
-      "src": "api/proxy.js",
-      "use": "@vercel/node"
-    },
-    {
-      "src": "api/fetch-proxy.js",
-      "use": "@vercel/node"
-    },
-    {
-      "src": "api/get-response.js",
-      "use": "@vercel/node"
-    },
-    {
-      "src": "api/sse-server.js",
-      "use": "@vercel/node"
-    }
-  ],
-  "routes": [
-    {
-      "src": "/api/trigger-workflow",
-      "dest": "api/trigger-workflow.js",
-      "methods": ["GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS"],
-      "headers": {
-        "Access-Control-Allow-Origin": "*",
-        "Access-Control-Allow-Methods": "GET, POST, PUT, DELETE, PATCH, OPTIONS",
-        "Access-Control-Allow-Headers": "Content-Type, Authorization, X-Requested-With"
-      }
-    },
-    {
-      "src": "/api/proxy",
-      "dest": "api/proxy.js",
-      "methods": ["GET", "OPTIONS"],
-      "headers": {
-        "Access-Control-Allow-Origin": "*",
-        "Access-Control-Allow-Methods": "GET, OPTIONS",
-        "Access-Control-Allow-Headers": "Content-Type, Authorization, X-Requested-With"
-      }
-    },
-    {
-      "src": "/api/fetch-proxy",
-      "dest": "api/fetch-proxy.js",
-      "methods": ["GET", "OPTIONS"],
-      "headers": {
-        "Access-Control-Allow-Origin": "*",
-        "Access-Control-Allow-Methods": "GET, OPTIONS",
-        "Access-Control-Allow-Headers": "Content-Type, Authorization, X-Requested-With"
-      }
-    },
-    {
-      "src": "/api/get-response",
-      "dest": "api/get-response.js",
-      "methods": ["GET", "POST", "PUT", "DELETE", "PATCH, OPTIONS"],
-      "headers": {
-        "Access-Control-Allow-Origin": "*",
-        "Access-Control-Allow-Methods": "GET, POST, PUT, DELETE, PATCH, OPTIONS",
-        "Access-Control-Allow-Headers": "Content-Type, Authorization, X-Requested-With"
-      }
-    },
-    {
-      "src": "/api/events",
-      "dest": "api/sse-server.js",
-      "methods": ["GET", "OPTIONS"],
-      "headers": {
-        "Access-Control-Allow-Origin": "*",
-        "Access-Control-Allow-Methods": "GET, OPTIONS",
-        "Access-Control-Allow-Headers": "Content-Type, Authorization, X-Requested-With"
-      }
-    },
-    {
-      "src": "/sse-index",
-      "dest": "api/sse-server.js",
-      "methods": ["GET"],
-      "headers": {
-        "Access-Control-Allow-Origin": "*",
-        "Access-Control-Allow-Methods": "GET",
-        "Access-Control-Allow-Headers": "Content-Type"
-      }
-    }
-  ]
-}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SSE Demo</title>
+</head>
+<body>
+    <h1>SSE Demo</h1>
+    <div id="time"></div>
+    <div id="messageCount"></div>
+    <script>
+        let messageCount = 0;
+
+        function startEventSource() {
+            const eventSource = new EventSource('https://proxyserver2-sandy.vercel.app/api/events');
+
+            eventSource.onmessage = function(event) {
+                messageCount++;
+                document.getElementById('time').innerText = 'Server time: ' + event.data;
+                document.getElementById('messageCount').innerText = 'Messages received: ' + messageCount;
+            };
+
+            eventSource.onerror = function(event) {
+                console.error('EventSource failed:', event);
+            };
+        }
+
+        // Start the EventSource connection initially
+        startEventSource();
+    </script>
+</body>
+</html>
