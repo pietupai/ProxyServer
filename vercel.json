@@ -84,10 +84,10 @@
     {
       "src": "/api/sse",
       "dest": "api/webhook.js",
-      "methods": ["GET"],
+      "methods": ["GET", "OPTIONS"],
       "headers": {
         "Access-Control-Allow-Origin": "*",
-        "Access-Control-Allow-Methods": "GET",
+        "Access-Control-Allow-Methods": "GET, OPTIONS",
         "Access-Control-Allow-Headers": "Content-Type, Authorization, X-Requested-With"
       }
     }
