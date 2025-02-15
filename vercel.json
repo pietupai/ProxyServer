@@ -18,7 +18,7 @@
       "use": "@vercel/node"
     },
     {
-      "src": "sse-server.js",
+      "src": "api/sse-server.js",
       "use": "@vercel/node"
     }
   ],
@@ -26,7 +26,7 @@
     {
       "src": "/api/trigger-workflow",
       "dest": "api/trigger-workflow.js",
-      "methods": ["GET", "POST", "PUT", "DELETE", "PATCH, OPTIONS"],
+      "methods": ["GET", "POST, PUT, DELETE, PATCH, OPTIONS"],
       "headers": {
         "Access-Control-Allow-Origin": "*",
         "Access-Control-Allow-Methods": "GET, POST, PUT, DELETE, PATCH, OPTIONS",
@@ -36,7 +36,7 @@
     {
       "src": "/api/proxy",
       "dest": "api/proxy.js",
-      "methods": ["GET", "OPTIONS"],
+      "methods": ["GET, OPTIONS"],
       "headers": {
         "Access-Control-Allow-Origin": "*",
         "Access-Control-Allow-Methods": "GET, OPTIONS",
@@ -65,12 +65,22 @@
     },
     {
       "src": "/api/events",
-      "dest": "sse-server.js",
+      "dest": "api/sse-server.js",
       "methods": ["GET, OPTIONS"],
       "headers": {
         "Access-Control-Allow-Origin": "*",
         "Access-Control-Allow-Methods": "GET, OPTIONS",
         "Access-Control-Allow-Headers": "Content-Type, Authorization, X-Requested-With"
+      }
+    },
+    {
+      "src": "/sse-index",
+      "dest": "api/sse-server.js",
+      "methods": ["GET"],
+      "headers": {
+        "Access-Control-Allow-Origin": "*",
+        "Access-Control-Allow-Methods": "GET",
+        "Access-Control-Allow-Headers": "Content-Type"
       }
     }
   ]
