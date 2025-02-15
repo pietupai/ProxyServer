@@ -30,7 +30,7 @@ app.get('/api/events', (req, res) => {
         const currentTime = Date.now();
         const elapsed = ((currentTime - previousTime) / 1000).toFixed(2);
         res.write(`data: Server time: ${now} - elapsed: ${elapsed}s\n\n`);
-        res.write(`data: Server time: ${now} - elapsed: ${elapsed}s\n\n`);
+        res.close();
         previousTime = currentTime;
     };
 
