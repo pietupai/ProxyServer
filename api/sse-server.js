@@ -21,8 +21,9 @@ app.get('/api/events', (req, res) => {
     res.setHeader('Cache-Control', 'no-cache');
     res.setHeader('Connection', 'keep-alive');
     res.flushHeaders();
-    
-    console.log('SSE connection established');
+
+    const previous_now = DateTime.now().setZone('Europe/Helsinki').toLocaleString(DateTime.TIME_WITH_SECONDS);
+    console.log('SSE connection established : ${previous_now}');
     let previousTime = Date.now();
 
     const sendServerTime = () => {
@@ -42,7 +43,8 @@ app.get('/api/events', (req, res) => {
 
     req.on('close', () => {
         console.log('SSE connection closed ');
-        clearInterval(intervalId);
+        //clearInterval(intervalId);
+        //clearInterval(keepAlive);
     });
 });
 
