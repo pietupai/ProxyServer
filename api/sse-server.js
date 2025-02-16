@@ -23,8 +23,6 @@ app.get('/api/events', (req, res) => {
     res.flushHeaders();
 
     const previous_now = DateTime.now().setZone('Europe/Helsinki').toLocaleString(DateTime.TIME_WITH_SECONDS);
-    //console.log('SSE connection established : ${previous_now}');
-    //console.log("SSE connection established : ${previous_now}");
     console.log(`SSE connection established : ${previous_now}`);
     let previousTime = Date.now();
 
