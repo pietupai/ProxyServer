@@ -41,7 +41,7 @@ app.get('/api/events', (req, res) => {
     //const intervalId = setInterval(sendServerTime, 10000); // 10 sekunnin välein
 
     //const keepAlive = setInterval(() => {  res.write('data: keep-alive\n\n');  console.log('Keep-alive message sent');  }, 5000);
-    setTimeout(() => { console.log('Keep-alive message sent'); res.write('data: \n\n'); }, 5000);
+    setTimeout(() => { console.log('Keep-alive message sent'); res.write(': Ping\n\n'); }, 5000);
 
     req.on('close', () => {
         console.log('SSE connection closed ');
