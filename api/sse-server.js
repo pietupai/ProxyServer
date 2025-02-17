@@ -15,7 +15,6 @@ app.use((req, res, next) => {
 });
 
 let lastSentTime = Date.now();
-let lastMessageTimestamp = null;
 let checkInterval;
 
 const sendServerTime = (res) => {
@@ -24,8 +23,7 @@ const sendServerTime = (res) => {
     const now = DateTime.now().setZone('Europe/Helsinki').toLocaleString(DateTime.TIME_WITH_SECONDS);
     const message = `Server time: ${now} - elapsed: ${elapsed}s`;
     res.write(`data: ${message}\n\n`);
-    lastSentTime = currentTime;
-    lastMessageTimestamp = currentTime; // Tallennetaan viimeisin lähetysaika oikeassa muodossa
+    lastSentTime = currentTime; // Päivitetään lähetysaika
     console.log('SSE message sent:', message);
 };
 
@@ -37,18 +35,22 @@ app.get('/api/events', (req, res) => {
 
     console.log(`SSE connection established: ${DateTime.now().setZone('Europe/Helsinki').toLocaleString(DateTime.TIME_WITH_SECONDS)}`);
 
-    if (lastMessageTimestamp) {
-        const currentTime = Date.now();
-        const elapsedReconnect = ((currentTime - lastMessageTimestamp) / 1000).toFixed(2);
-        if (elapsedReconnect >= 30) { // Tarkistetaan, onko 30 sekuntia kulunut
-            sendServerTime(res);
-        }
+    if (checkInterval) {
+        clearInterval(checkInterval);
     }
 
+    // Tarkistetaan, onko viimeisestä viestistä kulunut yli 30 sekuntia ja lähetetään viesti tarvittaessa
+    const currentTime = Date.now();
+    const elapsedReconnect = (currentTime - lastSentTime) / 1000;
+    if (elapsedReconnect >= 30) {
+        sendServerTime(res);
+    }
+
+    // Lähetetään viestejä 30 sekunnin välein
     checkInterval = setInterval(() => {
         const currentTime = Date.now();
         const elapsed = (currentTime - lastSentTime) / 1000;
-        if (elapsed >= 30) { // Tarkistetaan, onko 30 sekuntia kulunut
+        if (elapsed >= 30) {
             sendServerTime(res);
         }
     }, 1000); // Tarkistetaan joka sekunti, onko 30 sekuntia kulunut
