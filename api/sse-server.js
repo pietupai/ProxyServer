@@ -21,14 +21,12 @@ let keepAliveTimeout;
 const sendServerTime = (res) => {
     const currentTime = Date.now();
     const elapsed = ((currentTime - lastSentTime) / 1000).toFixed(2);
-    if (elapsed >= 10) {
-        const now = DateTime.now().setZone('Europe/Helsinki').toLocaleString(DateTime.TIME_WITH_SECONDS);
-        const message = `Server time: ${now} - elapsed: ${elapsed}s`;
-        res.write(`data: ${message}\n\n`);
-        lastSentTime = currentTime;
-        console.log('SSE message sent:', message);
-    }
-    messageTimeout = setTimeout(() => sendServerTime(res), 1000);
+    const now = DateTime.now().setZone('Europe/Helsinki').toLocaleString(DateTime.TIME_WITH_SECONDS);
+    const message = `Server time: ${now} - elapsed: ${elapsed}s`;
+    res.write(`data: ${message}\n\n`);
+    lastSentTime = currentTime;
+    console.log('SSE message sent:', message);
+    messageTimeout = setTimeout(() => sendServerTime(res), 10000);
 };
 
 const sendKeepAlive = (res) => {
@@ -49,7 +47,7 @@ app.get('/api/events', (req, res) => {
     clearTimeout(messageTimeout);
     clearTimeout(keepAliveTimeout);
     
-    sendServerTime(res);
+    sendServerTime(res); // Lähetä ensimmäinen data-viesti välittömästi
     sendKeepAlive(res);
 
     req.on('close', () => {
