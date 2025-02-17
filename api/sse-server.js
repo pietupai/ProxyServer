@@ -21,13 +21,11 @@ let keepAliveInterval;
 const sendServerTime = (res) => {
     const currentTime = Date.now();
     const elapsed = ((currentTime - lastSentTime) / 1000).toFixed(2);
-    if (elapsed >= 10) {
-        const now = DateTime.now().setZone('Europe/Helsinki').toLocaleString(DateTime.TIME_WITH_SECONDS);
-        const message = `Server time: ${now} - elapsed: ${elapsed}s`;
-        res.write(`data: ${message}\n\n`);
-        lastSentTime = currentTime;
-        console.log('SSE message sent:', message);
-    }
+    const now = DateTime.now().setZone('Europe/Helsinki').toLocaleString(DateTime.TIME_WITH_SECONDS);
+    const message = `Server time: ${now} - elapsed: ${elapsed}s`;
+    res.write(`data: ${message}\n\n`);
+    lastSentTime = currentTime;
+    console.log('SSE message sent:', message);
 };
 
 const sendKeepAlive = (res) => {
