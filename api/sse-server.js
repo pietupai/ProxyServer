@@ -1,81 +1,62 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>SSE Demo with timer and counter</title>
-</head>
-<body>
-    <h1>SSE Demo with timer and counter</h1>
-    <div id="time"></div>
-    <div id="ping"></div>
-    <div id="messageCount"></div>
-    <script>
-        let messageCount = 0;
-        let errorCount = 0;
-        let reconnectAttempts = 0;
-        let connectionTimeout;
-        let lastReceivedTime = Date.now();
-        const vercelUrl = 'https://proxyserver2-sandy.vercel.app/api/events';
+const express = require('express');
+const { DateTime } = require('luxon');
+const app = express();
+const port = process.env.PORT || 3000;
 
-        console.log("Script started : " + new Date().toISOString().replace("T"," ").substring(0, 19));
+app.use((req, res, next) => {
+    res.setHeader('Access-Control-Allow-Credentials', true);
+    res.setHeader('Access-Control-Allow-Origin', '*');
+    res.setHeader('Access-Control-Allow-Methods', 'GET,OPTIONS,PATCH,DELETE,POST,PUT');
+    res.setHeader(
+        'Access-Control-Allow-Headers',
+        'X-CSRF-Token, X-Requested-With, Accept, Accept-Version, Content-Length, Content-MD5, Content-Type, Date, X-Api-Version'
+    );
+    next();
+});
 
-        function startEventSource() {
-            const eventSource = new EventSource(vercelUrl);
-            console.log("SSE connection established : " + new Date().toISOString().replace("T"," ").substring(0, 19));
+let lastSentTime = Date.now();
+let lastMessageTimestamp = null;
+let messageInterval;
 
-            function closeConnection() {
-                console.log("Closing SSE connection to avoid onerror");
-                eventSource.close();
-                reconnectAttempts++;
-                const reconnectDelay = 500; // Lyhennetty viive, 0.5 sekuntia
-                console.log(`Reconnecting in ${reconnectDelay / 1000} seconds...`);
-                setTimeout(startEventSource, reconnectDelay);
-            }
+const sendServerTime = (res) => {
+    const currentTime = Date.now();
+    const elapsed = ((currentTime - lastSentTime) / 1000).toFixed(2);
+    const now = DateTime.now().setZone('Europe/Helsinki').toLocaleString(DateTime.TIME_WITH_SECONDS);
+    const message = `Server time: ${now} - elapsed: ${elapsed}s`;
+    res.write(`data: ${message}\n\n`);
+    lastSentTime = currentTime;
+    lastMessageTimestamp = now; // Tallennetaan viimeisin lähetysaika
+    console.log('SSE message sent:', message);
+};
 
-            eventSource.onmessage = function(event) {
-                const currentTime = Date.now();
-                const elapsed = ((currentTime - lastReceivedTime) / 1000).toFixed(2);
-                const timestamp = new Date().toISOString().replace("T"," ").substring(0, 19);
-                console.log("onmessage : " + timestamp + " - Data: " + event.data);
+app.get('/api/events', (req, res) => {
+    res.setHeader('Content-Type', 'text/event-stream');
+    res.setHeader('Cache-Control', 'no-cache');
+    res.setHeader('Connection', 'keep-alive');
+    res.flushHeaders();
 
-                if (elapsed >= 2) { // Tarkistetaan, että edellisestä lähetyksestä on kulunut vähintään 2 sekuntia
-                    lastReceivedTime = currentTime;
+    console.log(`SSE connection established: ${DateTime.now().setZone('Europe/Helsinki').toLocaleString(DateTime.TIME_WITH_SECONDS)}`);
 
-                    if (event.data.startsWith('keep-alive:')) {
-                        document.getElementById('ping').innerText = 'Received: ' + event.data;
-                    } else {
-                        messageCount++;
-                        document.getElementById('time').innerText = 'Server time: ' + event.data;
-                        document.getElementById('messageCount').innerText = 'Messages received: ' + messageCount;
-                    }
-                }
-            };
+    clearInterval(messageInterval);
 
-            eventSource.onopen = function(event) {
-                const timestamp = new Date().toISOString().replace("T"," ").substring(0, 19);
-                console.log("SSE connection open at : " + timestamp);
-                reconnectAttempts = 0; // Nollataan uudelleen yhdistämisyritykset onnistuneen yhdistämisen jälkeen
-                clearTimeout(connectionTimeout);
-                connectionTimeout = setTimeout(closeConnection, 9500); // Katkaistaan yhteys 9.5 sekunnin jälkeen
-            };
+    if (lastMessageTimestamp) {
+        const message = `Server time: ${lastMessageTimestamp} - Reconnected`;
+        res.write(`data: ${message}\n\n`);
+        console.log('Reconnected message sent:', message);
+    }
 
-            eventSource.onerror = function(event) {
-                const timestamp = new Date().toISOString().replace("T"," ").substring(0, 19);
-                errorCount++;
-                console.log("SSE error : " + timestamp);
-                console.log('SSE error: count =', errorCount);
-                console.error('SSE error:', event);
-                clearTimeout(connectionTimeout); // Poistetaan virheellinen logitus yhteyden katkeamisen jälkeen
-            };
+    lastSentTime = Date.now(); // Päivitetään lastSentTime heti yhteyden avaamisen jälkeen
 
-            eventSource.onclose = function(event) {
-                const timestamp = new Date().toISOString().replace("T"," ").substring(0, 19);
-                console.log("SSE connection closed at : " + timestamp);
-            };
-        }
+    messageInterval = setInterval(() => {
+        sendServerTime(res);
+    }, 2000); // Lähetä data-viesti 2 sekunnin välein
 
-        startEventSource();
-    </script>
-</body>
-</html>
+    req.on('close', () => {
+        console.log('SSE connection closed');
+        clearInterval(messageInterval);
+    });
+});
+
+app.listen(port, () => {
+    console.log(`SSE server running on http://localhost:${port}`);
+});
