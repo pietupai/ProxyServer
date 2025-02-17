@@ -20,7 +20,7 @@ let messageInterval;
 const sendServerTime = (res) => {
     const currentTime = Date.now();
     const elapsed = ((currentTime - lastSentTime) / 1000).toFixed(2);
-    if (elapsed >= 5) {
+    if (elapsed >= 2) {
         const now = DateTime.now().setZone('Europe/Helsinki').toLocaleString(DateTime.TIME_WITH_SECONDS);
         const message = `Server time: ${now} - elapsed: ${elapsed}s`;
         res.write(`data: ${message}\n\n`);
