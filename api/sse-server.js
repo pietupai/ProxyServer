@@ -14,7 +14,29 @@ app.use((req, res, next) => {
     next();
 });
 
-let previousTime = Date.now();
+let lastSentTime = Date.now();
+let messageTimeout;
+let keepAliveTimeout;
+
+const sendServerTime = (res) => {
+    const currentTime = Date.now();
+    const elapsed = ((currentTime - lastSentTime) / 1000).toFixed(2);
+    if (elapsed >= 10) {
+        const now = DateTime.now().setZone('Europe/Helsinki').toLocaleString(DateTime.TIME_WITH_SECONDS);
+        const message = `Server time: ${now} - elapsed: ${elapsed}s`;
+        res.write(`data: ${message}\n\n`);
+        lastSentTime = currentTime;
+        console.log('SSE message sent:', message);
+    }
+    messageTimeout = setTimeout(() => sendServerTime(res), 1000);
+};
+
+const sendKeepAlive = (res) => {
+    const now = DateTime.now().setZone('Europe/Helsinki').toLocaleString(DateTime.TIME_WITH_SECONDS);
+    res.write(`data: keep-alive: PING at ${now}\n\n`);
+    console.log('Keep-alive message sent: PING', now);
+    keepAliveTimeout = setTimeout(() => sendKeepAlive(res), 5000);
+};
 
 app.get('/api/events', (req, res) => {
     res.setHeader('Content-Type', 'text/event-stream');
@@ -24,32 +46,16 @@ app.get('/api/events', (req, res) => {
 
     console.log(`SSE connection established: ${DateTime.now().setZone('Europe/Helsinki').toLocaleString(DateTime.TIME_WITH_SECONDS)}`);
     
-    const sendServerTime = () => {
-        const now = DateTime.now().setZone('Europe/Helsinki').toLocaleString(DateTime.TIME_WITH_SECONDS);
-        const currentTime = Date.now();
-        const elapsed = ((currentTime - previousTime) / 1000).toFixed(2);
-        res.write(`data: Server time: ${now} - elapsed: ${elapsed}s\n\n`);
-        previousTime = currentTime;
-        console.log('SSE message sent');
-        
-        // Ajastetaan seuraava viestin lähetys
-        setTimeout(sendServerTime, 10000);
-    };
-
-    const sendKeepAlive = () => {
-        res.write('data: keep-alive\n\n');
-        console.log('Keep-alive message sent');
-        
-        // Ajastetaan seuraava keep-alive -viestin lähetys
-        setTimeout(sendKeepAlive, 5000);
-    };
-
-    // Aloitetaan viestien ja keep-alive -viestien lähetys
-    sendServerTime();
-    sendKeepAlive();
+    clearTimeout(messageTimeout);
+    clearTimeout(keepAliveTimeout);
+    
+    sendServerTime(res);
+    sendKeepAlive(res);
 
     req.on('close', () => {
         console.log('SSE connection closed');
+        clearTimeout(messageTimeout);
+        clearTimeout(keepAliveTimeout);
     });
 });
 
