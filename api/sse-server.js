@@ -35,7 +35,7 @@ const updateLastSentTime = (timestamp) => {
 
 const sendServerTime = (res, updateTimestamp = true) => {
     const currentTime = Date.now();
-    const elapsed = ((currentTime - lastSentTime) / 1000).toFixed(2);
+    const elapsed = !isNaN(currentTime) && !isNaN(lastSentTime) ? ((currentTime - lastSentTime) / 1000).toFixed(2) : 0;
     const now = DateTime.now().setZone('Europe/Helsinki').toLocaleString(DateTime.TIME_WITH_SECONDS);
     const message = `Server time: ${now} - elapsed: ${elapsed}s`;
     res.write(`data: ${message}\n\n`);
