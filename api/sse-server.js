@@ -14,18 +14,20 @@ app.use((req, res, next) => {
     next();
 });
 
-let previousTime = Date.now();
+let lastSentTime = Date.now();
 let messageInterval;
 let keepAliveInterval;
 
 const sendServerTime = (res) => {
     const currentTime = Date.now();
-    const elapsed = ((currentTime - previousTime) / 1000).toFixed(2);
-    const now = DateTime.now().setZone('Europe/Helsinki').toLocaleString(DateTime.TIME_WITH_SECONDS);
-    const message = `Server time: ${now} - elapsed: ${elapsed}s`;
-    res.write(`data: ${message}\n\n`);
-    previousTime = currentTime;
-    console.log('SSE message sent:', message);
+    const elapsed = ((currentTime - lastSentTime) / 1000).toFixed(2);
+    if (elapsed >= 10) {
+        const now = DateTime.now().setZone('Europe/Helsinki').toLocaleString(DateTime.TIME_WITH_SECONDS);
+        const message = `Server time: ${now} - elapsed: ${elapsed}s`;
+        res.write(`data: ${message}\n\n`);
+        lastSentTime = currentTime;
+        console.log('SSE message sent:', message);
+    }
 };
 
 const sendKeepAlive = (res) => {
@@ -41,11 +43,11 @@ app.get('/api/events', (req, res) => {
     res.flushHeaders();
 
     console.log(`SSE connection established: ${DateTime.now().setZone('Europe/Helsinki').toLocaleString(DateTime.TIME_WITH_SECONDS)}`);
-    
+
     clearInterval(messageInterval);
     clearInterval(keepAliveInterval);
 
-    previousTime = Date.now(); // Päivitetään previousTime heti yhteyden avaamisen jälkeen
+    lastSentTime = Date.now(); // Päivitetään lastSentTime heti yhteyden avaamisen jälkeen
 
     sendServerTime(res); // Lähetä ensimmäinen data-viesti heti
     messageInterval = setInterval(() => sendServerTime(res), 10000); // Lähetä data-viesti 10 sekunnin välein
