@@ -20,21 +20,12 @@ let messageInterval;
 const sendServerTime = (res) => {
     const currentTime = Date.now();
     const elapsed = ((currentTime - lastSentTime) / 1000).toFixed(2);
-    if (elapsed >= 2) {
-        const now = DateTime.now().setZone('Europe/Helsinki').toLocaleString(DateTime.TIME_WITH_SECONDS);
-        const message = `Server time: ${now} - elapsed: ${elapsed}s`;
-        res.write(`data: ${message}\n\n`);
-        lastSentTime = currentTime;
-        console.log('SSE message sent:', message);
-    }
+    const now = DateTime.now().setZone('Europe/Helsinki').toLocaleString(DateTime.TIME_WITH_SECONDS);
+    const message = `Server time: ${now} - elapsed: ${elapsed}s`;
+    res.write(`data: ${message}\n\n`);
+    lastSentTime = currentTime;
+    console.log('SSE message sent:', message);
 };
-
-// Kommentoidaan pois keep-alive-viestit
-// const sendKeepAlive = (res) => {
-//     const now = DateTime.now().setZone('Europe/Helsinki').toLocaleString(DateTime.TIME_WITH_SECONDS);
-//     res.write(': PING\n\n'); // Lähetetään kommenttina, jotta se ei häiritse data-viestejä
-//     console.log('Keep-alive message sent: PING', now);
-// };
 
 app.get('/api/events', (req, res) => {
     res.setHeader('Content-Type', 'text/event-stream');
@@ -49,7 +40,7 @@ app.get('/api/events', (req, res) => {
     lastSentTime = Date.now(); // Päivitetään lastSentTime heti yhteyden avaamisen jälkeen
 
     sendServerTime(res); // Lähetä ensimmäinen data-viesti heti
-    messageInterval = setInterval(() => sendServerTime(res), 10000); // Lähetä data-viesti 10 sekunnin välein
+    messageInterval = setInterval(() => sendServerTime(res), 2000); // Lähetä data-viesti 2 sekunnin välein
 
     req.on('close', () => {
         console.log('SSE connection closed');
