@@ -17,16 +17,14 @@ app.use((req, res, next) => {
 let lastSentTime = Date.now();
 console.log(`Initial lastSentTime: ${new Date(lastSentTime).toLocaleString()}`);
 
-const sendServerTime = (res, updateTimestamp = true) => {
+const sendServerTime = (res) => {
     const currentTime = Date.now();
     const elapsed = ((currentTime - lastSentTime) / 1000).toFixed(2);
     if (elapsed >= 30) {
         const now = DateTime.now().setZone('Europe/Helsinki').toLocaleString(DateTime.TIME_WITH_SECONDS);
         const message = `Server time: ${now} - elapsed: ${elapsed}s`;
         res.write(`data: ${message}\n\n`);
-        if (updateTimestamp) {
-            lastSentTime = currentTime; // Päivitetään lähetysaika vain tarvittaessa
-        }
+        lastSentTime = currentTime;
         console.log('SSE message sent:', message);
     }
 };
@@ -46,32 +44,12 @@ app.get('/api/events', (req, res) => {
 
         let checkInterval;
 
-        // Tarkistetaan, onko viimeisestä viestistä kulunut yli 30 sekuntia ja lähetetään viesti tarvittaessa
-        const currentTime = Date.now();
-        const elapsedReconnect = (currentTime - lastSentTime) / 1000;
-        if (elapsedReconnect >= 30) {
+        const checkAndSend = () => {
             sendServerTime(res);
-        } else {
-            const timeoutId = setTimeout(() => {
-                sendServerTime(res); // Päivitetään lähetysaika vain, jos viesti lähetetään
-                checkInterval = setInterval(() => {
-                    sendServerTime(res);
-                }, 1000); // Tarkistetaan joka sekunti, onko 30 sekuntia kulunut
-            }, (30 - elapsedReconnect) * 1000);
-
-            req.on('close', () => {
-                console.log('SSE connection closed');
-                clearInterval(checkInterval);
-                clearTimeout(timeoutId); // Perutaan viive, jos yhteys suljetaan ennenaikaisesti
-            });
-
-            return; // Palautetaan, jotta viestiä ei lähetetä kahdesti
-        }
+        };
 
         // Lähetetään viestejä 30 sekunnin välein
-        checkInterval = setInterval(() => {
-            sendServerTime(res);
-        }, 1000); // Tarkistetaan joka sekunti, onko 30 sekuntia kulunut
+        checkInterval = setInterval(checkAndSend, 1000);
 
         req.on('close', () => {
             console.log('SSE connection closed');
