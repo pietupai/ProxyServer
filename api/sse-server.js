@@ -45,6 +45,12 @@ app.get('/api/events', (req, res) => {
         }
     }
 
+    const currentTime = Date.now();
+    const elapsedReconnect = (currentTime - lastSentTime) / 1000;
+    if (elapsedReconnect >= 30) {
+        sendServerTime(res);
+    }
+
     checkInterval = setInterval(() => {
         const currentTime = Date.now();
         const elapsed = (currentTime - lastSentTime) / 1000;
