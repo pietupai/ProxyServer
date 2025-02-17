@@ -16,7 +16,7 @@ app.use((req, res, next) => {
 
 let lastSentTime = Date.now();
 let lastMessageTimestamp = null;
-let messageInterval;
+let checkInterval;
 
 const sendServerTime = (res) => {
     const currentTime = Date.now();
@@ -25,7 +25,7 @@ const sendServerTime = (res) => {
     const message = `Server time: ${now} - elapsed: ${elapsed}s`;
     res.write(`data: ${message}\n\n`);
     lastSentTime = currentTime;
-    lastMessageTimestamp = now; // Tallennetaan viimeisin lähetysaika
+    lastMessageTimestamp = currentTime; // Tallennetaan viimeisin lähetysaika oikeassa muodossa
     console.log('SSE message sent:', message);
 };
 
@@ -37,23 +37,25 @@ app.get('/api/events', (req, res) => {
 
     console.log(`SSE connection established: ${DateTime.now().setZone('Europe/Helsinki').toLocaleString(DateTime.TIME_WITH_SECONDS)}`);
 
-    clearInterval(messageInterval);
-
     if (lastMessageTimestamp) {
-        const message = `Server time: ${lastMessageTimestamp} - Reconnected`;
-        res.write(`data: ${message}\n\n`);
-        console.log('Reconnected message sent:', message);
+        const currentTime = Date.now();
+        const elapsedReconnect = ((currentTime - lastMessageTimestamp) / 1000).toFixed(2);
+        if (elapsedReconnect >= 30) { // Tarkistetaan, onko 30 sekuntia kulunut
+            sendServerTime(res);
+        }
     }
 
-    lastSentTime = Date.now(); // Päivitetään lastSentTime heti yhteyden avaamisen jälkeen
-
-    messageInterval = setInterval(() => {
-        sendServerTime(res);
-    }, 2000); // Lähetä data-viesti 2 sekunnin välein
+    checkInterval = setInterval(() => {
+        const currentTime = Date.now();
+        const elapsed = (currentTime - lastSentTime) / 1000;
+        if (elapsed >= 30) { // Tarkistetaan, onko 30 sekuntia kulunut
+            sendServerTime(res);
+        }
+    }, 1000); // Tarkistetaan joka sekunti, onko 30 sekuntia kulunut
 
     req.on('close', () => {
         console.log('SSE connection closed');
-        clearInterval(messageInterval);
+        clearInterval(checkInterval);
     });
 });
 
