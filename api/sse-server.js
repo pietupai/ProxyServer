@@ -16,9 +16,11 @@ app.use((req, res, next) => {
     next();
 });
 
-let lastSentTime = process.env.LAST_SENT_TIME && !isNaN(parseInt(process.env.LAST_SENT_TIME))
-    ? parseInt(process.env.LAST_SENT_TIME)
-    : Date.now();
+if (isVercel && !process.env.LAST_SENT_TIME) {
+    process.env.LAST_SENT_TIME = Date.now().toString();
+}
+
+let lastSentTime = process.env.LAST_SENT_TIME ? parseInt(process.env.LAST_SENT_TIME) : Date.now();
 console.log(`Initial lastSentTime: ${new Date(lastSentTime).toLocaleString()}`);
 
 let checkInterval;
@@ -49,31 +51,59 @@ app.listen(port, () => {
 });
 
 app.get('/api/events', (req, res) => {
-    res.setHeader('Content-Type', 'text/event-stream');
-    res.setHeader('Cache-Control', 'no-cache');
-    res.setHeader('Connection', 'keep-alive');
-    res.flushHeaders();
+    try {
+        res.setHeader('Content-Type', 'text/event-stream');
+        res.setHeader('Cache-Control', 'no-cache');
+        res.setHeader('Connection', 'keep-alive');
+        res.flushHeaders();
 
-    console.log(`SSE connection established: ${DateTime.now().setZone('Europe/Helsinki').toLocaleString(DateTime.TIME_WITH_SECONDS)}`);
+        console.log(`SSE connection established: ${DateTime.now().setZone('Europe/Helsinki').toLocaleString(DateTime.TIME_WITH_SECONDS)}`);
 
-    if (checkInterval) {
-        clearInterval(checkInterval);
-    }
+        if (checkInterval) {
+            clearInterval(checkInterval);
+        }
 
-    // Tarkistetaan, onko viimeisestä viestistä kulunut yli 30 sekuntia ja lähetetään viesti tarvittaessa
-    const currentTime = Date.now();
-    const elapsedReconnect = (currentTime - lastSentTime) / 1000;
-    if (!isNaN(elapsedReconnect) && elapsedReconnect >= 30) {
-        sendServerTime(res);
-    } else {
-        const timeoutId = setTimeout(() => {
+        // Tarkistetaan, onko viimeisestä viestistä kulunut yli 30 sekuntia ja lähetetään viesti tarvittaessa
+        const currentTime = Date.now();
+        const elapsedReconnect = (currentTime - lastSentTime) / 1000;
+        if (!isNaN(elapsedReconnect) && elapsedReconnect >= 30) {
             sendServerTime(res);
-            checkInterval = setInterval(() => {
-                const currentTime = Date.now();
-                const elapsed = (currentTime - lastSentTime) / 1000;
-                if (!isNaN(elapsed) && elapsed >= 30) {
-                    sendServerTime(res);
-                }
-            }, 1000); // Tarkistetaan joka sekunti, onko 30 sekuntia kulunut
-        }, (!isNaN(30 - elapsedReconnect) ? (30 - elapsedReconnect) * 1000 : 0));
+        } else {
+            const timeoutId = setTimeout(() => {
+                sendServerTime(res);
+                checkInterval = setInterval(() => {
+                    const currentTime = Date.now();
+                    const elapsed = (currentTime - lastSentTime) / 1000;
+                    if (!isNaN(elapsed) && elapsed >= 30) {
+                        sendServerTime(res);
+                    }
+                }, 1000); // Tarkistetaan joka sekunti, onko 30 sekuntia kulunut
+            }, (!isNaN(30 - elapsedReconnect) ? (30 - elapsedReconnect) * 1000 : 0));
 
+            req.on('close', () => {
+                console.log('SSE connection closed');
+                clearInterval(checkInterval);
+                clearTimeout(timeoutId); // Perutaan viive, jos yhteys suljetaan ennenaikaisesti
+            });
+
+            return; // Palautetaan, jotta viestiä ei lähetetä kahdesti
+        }
+
+        // Lähetetään viestejä 30 sekunnin välein
+        checkInterval = setInterval(() => {
+            const currentTime = Date.now();
+            const elapsed = (currentTime - lastSentTime) / 1000;
+            if (!isNaN(elapsed) && elapsed >= 30) {
+                sendServerTime(res);
+            }
+        }, 1000); // Tarkistetaan joka sekunti, onko 30 sekuntia kulunut
+
+        req.on('close', () => {
+            console.log('SSE connection closed');
+            clearInterval(checkInterval);
+        });
+    } catch (error) {
+        console.error('Error in /api/events:', error);
+        res.status(500).send('Internal Server Error');
+    }
+});
