@@ -15,8 +15,8 @@ app.use((req, res, next) => {
 });
 
 let lastSentTime = Date.now();
-let messageTimeout;
-let keepAliveTimeout;
+let messageInterval;
+let keepAliveInterval;
 
 const sendServerTime = (res) => {
     const currentTime = Date.now();
@@ -26,14 +26,12 @@ const sendServerTime = (res) => {
     res.write(`data: ${message}\n\n`);
     lastSentTime = currentTime;
     console.log('SSE message sent:', message);
-    messageTimeout = setTimeout(() => sendServerTime(res), 10000);
 };
 
 const sendKeepAlive = (res) => {
     const now = DateTime.now().setZone('Europe/Helsinki').toLocaleString(DateTime.TIME_WITH_SECONDS);
     res.write(`data: keep-alive: PING at ${now}\n\n`);
     console.log('Keep-alive message sent: PING', now);
-    keepAliveTimeout = setTimeout(() => sendKeepAlive(res), 5000);
 };
 
 app.get('/api/events', (req, res) => {
@@ -44,16 +42,18 @@ app.get('/api/events', (req, res) => {
 
     console.log(`SSE connection established: ${DateTime.now().setZone('Europe/Helsinki').toLocaleString(DateTime.TIME_WITH_SECONDS)}`);
     
-    clearTimeout(messageTimeout);
-    clearTimeout(keepAliveTimeout);
+    clearInterval(messageInterval);
+    clearInterval(keepAliveInterval);
     
-    sendServerTime(res); // Lähetä ensimmäinen data-viesti välittömästi
-    sendKeepAlive(res);
+    sendServerTime(res); // Lähetä ensimmäinen data-viesti heti
+    messageInterval = setInterval(() => sendServerTime(res), 10000); // Lähetä data-viesti 10 sekunnin välein
+    sendKeepAlive(res); // Lähetä ensimmäinen keep-alive-viesti heti
+    keepAliveInterval = setInterval(() => sendKeepAlive(res), 5000); // Lähetä keep-alive-viesti 5 sekunnin välein
 
     req.on('close', () => {
         console.log('SSE connection closed');
-        clearTimeout(messageTimeout);
-        clearTimeout(keepAliveTimeout);
+        clearInterval(messageInterval);
+        clearInterval(keepAliveInterval);
     });
 });
 
