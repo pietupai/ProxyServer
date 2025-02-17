@@ -14,40 +14,25 @@ app.use((req, res, next) => {
     next();
 });
 
-const isVercel = !!process.env.VERCEL;
-
-if (isVercel && !process.env.LAST_SENT_TIME) {
-    process.env.LAST_SENT_TIME = Date.now().toString();
-}
-
-let lastSentTime = isVercel && process.env.LAST_SENT_TIME ? parseInt(process.env.LAST_SENT_TIME) : Date.now();
+let lastSentTime = Date.now();
 console.log(`Initial lastSentTime: ${new Date(lastSentTime).toLocaleString()}`);
-
-let checkInterval;
-
-const updateLastSentTime = (timestamp) => {
-    if (isVercel) {
-        process.env.LAST_SENT_TIME = timestamp.toString();
-    } else {
-        lastSentTime = timestamp;
-    }
-};
 
 const sendServerTime = (res, updateTimestamp = true) => {
     const currentTime = Date.now();
     const elapsed = ((currentTime - lastSentTime) / 1000).toFixed(2);
-    const now = DateTime.now().setZone('Europe/Helsinki').toLocaleString(DateTime.TIME_WITH_SECONDS);
-    const message = `Server time: ${now} - elapsed: ${elapsed}s`;
-    res.write(`data: ${message}\n\n`);
-    if (updateTimestamp) {
-        updateLastSentTime(currentTime); // Päivitetään lähetysaika vain tarvittaessa
+    if (elapsed >= 30) {
+        const now = DateTime.now().setZone('Europe/Helsinki').toLocaleString(DateTime.TIME_WITH_SECONDS);
+        const message = `Server time: ${now} - elapsed: ${elapsed}s`;
+        res.write(`data: ${message}\n\n`);
+        if (updateTimestamp) {
+            lastSentTime = currentTime; // Päivitetään lähetysaika vain tarvittaessa
+        }
+        console.log('SSE message sent:', message);
     }
-    console.log('SSE message sent:', message);
 };
 
 app.listen(port, () => {
     console.log(`SSE server running on http://localhost:${port}`);
-    console.log(isVercel ? "Running on Vercel" : "Running locally");
 });
 
 app.get('/api/events', (req, res) => {
@@ -59,9 +44,7 @@ app.get('/api/events', (req, res) => {
 
         console.log(`SSE connection established: ${DateTime.now().setZone('Europe/Helsinki').toLocaleString(DateTime.TIME_WITH_SECONDS)}`);
 
-        if (checkInterval) {
-            clearInterval(checkInterval);
-        }
+        let checkInterval;
 
         // Tarkistetaan, onko viimeisestä viestistä kulunut yli 30 sekuntia ja lähetetään viesti tarvittaessa
         const currentTime = Date.now();
@@ -70,13 +53,9 @@ app.get('/api/events', (req, res) => {
             sendServerTime(res);
         } else {
             const timeoutId = setTimeout(() => {
-                sendServerTime(res, false); // Päivitetään lähetysaika vain, jos viesti lähetetään
+                sendServerTime(res); // Päivitetään lähetysaika vain, jos viesti lähetetään
                 checkInterval = setInterval(() => {
-                    const currentTime = Date.now();
-                    const elapsed = (currentTime - lastSentTime) / 1000;
-                    if (elapsed >= 30) {
-                        sendServerTime(res);
-                    }
+                    sendServerTime(res);
                 }, 1000); // Tarkistetaan joka sekunti, onko 30 sekuntia kulunut
             }, (30 - elapsedReconnect) * 1000);
 
@@ -91,11 +70,7 @@ app.get('/api/events', (req, res) => {
 
         // Lähetetään viestejä 30 sekunnin välein
         checkInterval = setInterval(() => {
-            const currentTime = Date.now();
-            const elapsed = (currentTime - lastSentTime) / 1000;
-            if (elapsed >= 30) {
-                sendServerTime(res);
-            }
+            sendServerTime(res);
         }, 1000); // Tarkistetaan joka sekunti, onko 30 sekuntia kulunut
 
         req.on('close', () => {
