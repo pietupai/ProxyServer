@@ -17,13 +17,15 @@ app.use((req, res, next) => {
 let lastSentTime = Date.now();
 let checkInterval;
 
-const sendServerTime = (res) => {
+const sendServerTime = (res, updateTimestamp = true) => {
     const currentTime = Date.now();
     const elapsed = ((currentTime - lastSentTime) / 1000).toFixed(2);
     const now = DateTime.now().setZone('Europe/Helsinki').toLocaleString(DateTime.TIME_WITH_SECONDS);
     const message = `Server time: ${now} - elapsed: ${elapsed}s`;
     res.write(`data: ${message}\n\n`);
-    lastSentTime = currentTime; // Päivitetään lähetysaika
+    if (updateTimestamp) {
+        lastSentTime = currentTime; // Päivitetään lähetysaika vain tarvittaessa
+    }
     console.log('SSE message sent:', message);
 };
 
@@ -44,6 +46,26 @@ app.get('/api/events', (req, res) => {
     const elapsedReconnect = (currentTime - lastSentTime) / 1000;
     if (elapsedReconnect >= 30) {
         sendServerTime(res);
+    } else {
+        // Jos viimeisestä viestistä ei ole kulunut 30 sekuntia, odotetaan jäljellä oleva aika ja lähetetään sitten
+        const timeoutId = setTimeout(() => {
+            sendServerTime(res);
+            checkInterval = setInterval(() => {
+                const currentTime = Date.now();
+                const elapsed = (currentTime - lastSentTime) / 1000;
+                if (elapsed >= 30) {
+                    sendServerTime(res);
+                }
+            }, 1000); // Tarkistetaan joka sekunti, onko 30 sekuntia kulunut
+        }, (30 - elapsedReconnect) * 1000);
+
+        req.on('close', () => {
+            console.log('SSE connection closed');
+            clearInterval(checkInterval);
+            clearTimeout(timeoutId); // Perutaan viive, jos yhteys suljetaan ennenaikaisesti
+        });
+
+        return; // Palautetaan, jotta viestiä ei lähetetä kahdesti
     }
 
     // Lähetetään viestejä 30 sekunnin välein
