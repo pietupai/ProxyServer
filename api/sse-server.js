@@ -15,6 +15,7 @@ app.use((req, res, next) => {
 });
 
 let lastSentTime = Date.now();
+let lastMessageTimestamp = null;
 let messageInterval;
 
 const sendServerTime = (res) => {
@@ -24,6 +25,7 @@ const sendServerTime = (res) => {
     const message = `Server time: ${now} - elapsed: ${elapsed}s`;
     res.write(`data: ${message}\n\n`);
     lastSentTime = currentTime;
+    lastMessageTimestamp = now; // Tallennetaan viimeisin lähetysaika
     console.log('SSE message sent:', message);
 };
 
@@ -37,10 +39,17 @@ app.get('/api/events', (req, res) => {
 
     clearInterval(messageInterval);
 
+    if (lastMessageTimestamp) {
+        const message = `Server time: ${lastMessageTimestamp} - Reconnected`;
+        res.write(`data: ${message}\n\n`);
+        console.log('Reconnected message sent:', message);
+    }
+
     lastSentTime = Date.now(); // Päivitetään lastSentTime heti yhteyden avaamisen jälkeen
 
-    sendServerTime(res); // Lähetä ensimmäinen data-viesti heti
-    messageInterval = setInterval(() => sendServerTime(res), 30000); // Lähetä data-viesti 2 sekunnin välein
+    messageInterval = setInterval(() => {
+        sendServerTime(res);
+    }, 2000); // Lähetä data-viesti 2 sekunnin välein
 
     req.on('close', () => {
         console.log('SSE connection closed');
