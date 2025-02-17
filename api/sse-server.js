@@ -14,25 +14,40 @@ app.use((req, res, next) => {
     next();
 });
 
-let lastSentTime = Date.now();
+const isVercel = !!process.env.VERCEL;
+
+if (isVercel && !process.env.LAST_SENT_TIME) {
+    process.env.LAST_SENT_TIME = Date.now().toString();
+}
+
+let lastSentTime = isVercel && process.env.LAST_SENT_TIME ? parseInt(process.env.LAST_SENT_TIME) : Date.now();
 console.log(`Initial lastSentTime: ${new Date(lastSentTime).toLocaleString()}`);
 
 let checkInterval;
 
+const updateLastSentTime = (timestamp) => {
+    if (isVercel) {
+        process.env.LAST_SENT_TIME = timestamp.toString();
+    } else {
+        lastSentTime = timestamp;
+    }
+};
+
 const sendServerTime = (res, updateTimestamp = true) => {
     const currentTime = Date.now();
-    const elapsed = !isNaN(currentTime) && !isNaN(lastSentTime) ? ((currentTime - lastSentTime) / 1000).toFixed(2) : 0;
+    const elapsed = ((currentTime - lastSentTime) / 1000).toFixed(2);
     const now = DateTime.now().setZone('Europe/Helsinki').toLocaleString(DateTime.TIME_WITH_SECONDS);
     const message = `Server time: ${now} - elapsed: ${elapsed}s`;
     res.write(`data: ${message}\n\n`);
     if (updateTimestamp) {
-        lastSentTime = currentTime; // Päivitetään lähetysaika vain tarvittaessa
+        updateLastSentTime(currentTime); // Päivitetään lähetysaika vain tarvittaessa
     }
     console.log('SSE message sent:', message);
 };
 
 app.listen(port, () => {
     console.log(`SSE server running on http://localhost:${port}`);
+    console.log(isVercel ? "Running on Vercel" : "Running locally");
 });
 
 app.get('/api/events', (req, res) => {
@@ -51,7 +66,7 @@ app.get('/api/events', (req, res) => {
         // Tarkistetaan, onko viimeisestä viestistä kulunut yli 30 sekuntia ja lähetetään viesti tarvittaessa
         const currentTime = Date.now();
         const elapsedReconnect = (currentTime - lastSentTime) / 1000;
-        if (!isNaN(elapsedReconnect) && elapsedReconnect >= 30) {
+        if (elapsedReconnect >= 30) {
             sendServerTime(res);
         } else {
             const timeoutId = setTimeout(() => {
@@ -59,11 +74,11 @@ app.get('/api/events', (req, res) => {
                 checkInterval = setInterval(() => {
                     const currentTime = Date.now();
                     const elapsed = (currentTime - lastSentTime) / 1000;
-                    if (!isNaN(elapsed) && elapsed >= 30) {
+                    if (elapsed >= 30) {
                         sendServerTime(res);
                     }
                 }, 1000); // Tarkistetaan joka sekunti, onko 30 sekuntia kulunut
-            }, (!isNaN(30 - elapsedReconnect) ? (30 - elapsedReconnect) * 1000 : 0));
+            }, (30 - elapsedReconnect) * 1000);
 
             req.on('close', () => {
                 console.log('SSE connection closed');
@@ -78,7 +93,7 @@ app.get('/api/events', (req, res) => {
         checkInterval = setInterval(() => {
             const currentTime = Date.now();
             const elapsed = (currentTime - lastSentTime) / 1000;
-            if (!isNaN(elapsed) && elapsed >= 30) {
+            if (elapsed >= 30) {
                 sendServerTime(res);
             }
         }, 1000); // Tarkistetaan joka sekunti, onko 30 sekuntia kulunut
