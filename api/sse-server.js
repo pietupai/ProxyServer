@@ -40,7 +40,7 @@ app.get('/api/events', (req, res) => {
     lastSentTime = Date.now(); // Päivitetään lastSentTime heti yhteyden avaamisen jälkeen
 
     sendServerTime(res); // Lähetä ensimmäinen data-viesti heti
-    messageInterval = setInterval(() => sendServerTime(res), 2000); // Lähetä data-viesti 2 sekunnin välein
+    messageInterval = setInterval(() => sendServerTime(res), 30000); // Lähetä data-viesti 2 sekunnin välein
 
     req.on('close', () => {
         console.log('SSE connection closed');
