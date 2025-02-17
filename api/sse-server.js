@@ -16,7 +16,9 @@ app.use((req, res, next) => {
     next();
 });
 
-let lastSentTime = process.env.LAST_SENT_TIME ? parseInt(process.env.LAST_SENT_TIME) : Date.now();
+let lastSentTime = process.env.LAST_SENT_TIME && !isNaN(parseInt(process.env.LAST_SENT_TIME))
+    ? parseInt(process.env.LAST_SENT_TIME)
+    : Date.now();
 console.log(`Initial lastSentTime: ${new Date(lastSentTime).toLocaleString()}`);
 
 let checkInterval;
@@ -61,7 +63,7 @@ app.get('/api/events', (req, res) => {
     // Tarkistetaan, onko viimeisestä viestistä kulunut yli 30 sekuntia ja lähetetään viesti tarvittaessa
     const currentTime = Date.now();
     const elapsedReconnect = (currentTime - lastSentTime) / 1000;
-    if (elapsedReconnect >= 30) {
+    if (!isNaN(elapsedReconnect) && elapsedReconnect >= 30) {
         sendServerTime(res);
     } else {
         const timeoutId = setTimeout(() => {
@@ -69,32 +71,9 @@ app.get('/api/events', (req, res) => {
             checkInterval = setInterval(() => {
                 const currentTime = Date.now();
                 const elapsed = (currentTime - lastSentTime) / 1000;
-                if (elapsed >= 30) {
+                if (!isNaN(elapsed) && elapsed >= 30) {
                     sendServerTime(res);
                 }
             }, 1000); // Tarkistetaan joka sekunti, onko 30 sekuntia kulunut
-        }, (30 - elapsedReconnect) * 1000);
+        }, (!isNaN(30 - elapsedReconnect) ? (30 - elapsedReconnect) * 1000 : 0));
 
-        req.on('close', () => {
-            console.log('SSE connection closed');
-            clearInterval(checkInterval);
-            clearTimeout(timeoutId); // Perutaan viive, jos yhteys suljetaan ennenaikaisesti
-        });
-
-        return; // Palautetaan, jotta viestiä ei lähetetä kahdesti
-    }
-
-    // Lähetetään viestejä 30 sekunnin välein
-    checkInterval = setInterval(() => {
-        const currentTime = Date.now();
-        const elapsed = (currentTime - lastSentTime) / 1000;
-        if (elapsed >= 30) {
-            sendServerTime(res);
-        }
-    }, 1000); // Tarkistetaan joka sekunti, onko 30 sekuntia kulunut
-
-    req.on('close', () => {
-        console.log('SSE connection closed');
-        clearInterval(checkInterval);
-    });
-});
