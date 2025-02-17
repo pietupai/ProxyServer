@@ -3,6 +3,9 @@ const { DateTime } = require('luxon');
 const app = express();
 const port = process.env.PORT || 3000;
 
+// Staattinen muuttuja viimeisimmälle lähetysajalle
+let lastSentTime = Date.now();
+
 app.use((req, res, next) => {
     res.setHeader('Access-Control-Allow-Credentials', true);
     res.setHeader('Access-Control-Allow-Origin', '*');
@@ -14,9 +17,6 @@ app.use((req, res, next) => {
     next();
 });
 
-let lastSentTime = Date.now();
-console.log(`Initial lastSentTime: ${new Date(lastSentTime).toLocaleString()}`);
-
 const sendServerTime = (res) => {
     const currentTime = Date.now();
     const elapsed = ((currentTime - lastSentTime) / 1000).toFixed(2);
@@ -24,7 +24,7 @@ const sendServerTime = (res) => {
         const now = DateTime.now().setZone('Europe/Helsinki').toLocaleString(DateTime.TIME_WITH_SECONDS);
         const message = `Server time: ${now} - elapsed: ${elapsed}s`;
         res.write(`data: ${message}\n\n`);
-        lastSentTime = currentTime;
+        lastSentTime = currentTime; // Päivitetään lähetysaika viestin jälkeen
         console.log('SSE message sent:', message);
     }
 };
