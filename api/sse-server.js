@@ -1,10 +1,8 @@
 const express = require('express');
-const path = require('path');
 const { DateTime } = require('luxon');
 const app = express();
 const port = process.env.PORT || 3000;
 
-// Set CORS headers as per Vercel support suggestion
 app.use((req, res, next) => {
     res.setHeader('Access-Control-Allow-Credentials', true);
     res.setHeader('Access-Control-Allow-Origin', '*');
@@ -16,35 +14,42 @@ app.use((req, res, next) => {
     next();
 });
 
+let previousTime = Date.now();
+
 app.get('/api/events', (req, res) => {
     res.setHeader('Content-Type', 'text/event-stream');
     res.setHeader('Cache-Control', 'no-cache');
     res.setHeader('Connection', 'keep-alive');
     res.flushHeaders();
 
-    const previous_now = DateTime.now().setZone('Europe/Helsinki').toLocaleString(DateTime.TIME_WITH_SECONDS);
-    console.log(`SSE connection established : ${previous_now}`);
-    let previousTime = Date.now();
-
+    console.log(`SSE connection established: ${DateTime.now().setZone('Europe/Helsinki').toLocaleString(DateTime.TIME_WITH_SECONDS)}`);
+    
     const sendServerTime = () => {
         const now = DateTime.now().setZone('Europe/Helsinki').toLocaleString(DateTime.TIME_WITH_SECONDS);
         const currentTime = Date.now();
         const elapsed = ((currentTime - previousTime) / 1000).toFixed(2);
         res.write(`data: Server time: ${now} - elapsed: ${elapsed}s\n\n`);
         previousTime = currentTime;
-        console.log('SSE message sended');
+        console.log('SSE message sent');
+        
+        // Ajastetaan seuraava viestin lähetys
+        setTimeout(sendServerTime, 10000);
     };
 
-    //sendServerTime();
-    //const intervalId = setInterval(sendServerTime, 10000); // 10 sekunnin välein
+    const sendKeepAlive = () => {
+        res.write('data: keep-alive\n\n');
+        console.log('Keep-alive message sent');
+        
+        // Ajastetaan seuraava keep-alive -viestin lähetys
+        setTimeout(sendKeepAlive, 5000);
+    };
 
-    //const keepAlive = setInterval(() => {  res.write('data: keep-alive\n\n');  console.log('Keep-alive message sent');  }, 5000);
-    setTimeout(() => { console.log('Keep-alive message sent'); res.write('data: Ping\n\n'); }, 2000);
+    // Aloitetaan viestien ja keep-alive -viestien lähetys
+    sendServerTime();
+    sendKeepAlive();
 
     req.on('close', () => {
-        console.log('SSE connection closed ');
-        //clearInterval(intervalId);
-        //clearInterval(keepAlive);
+        console.log('SSE connection closed');
     });
 });
 
