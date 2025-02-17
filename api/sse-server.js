@@ -16,9 +16,7 @@ app.use((req, res, next) => {
     next();
 });
 
-let lastSentTime = process.env.LAST_SENT_TIME && !isNaN(parseInt(process.env.LAST_SENT_TIME))
-    ? parseInt(process.env.LAST_SENT_TIME)
-    : Date.now();
+let lastSentTime = process.env.LAST_SENT_TIME ? parseInt(process.env.LAST_SENT_TIME) : Date.now();
 console.log(`Initial lastSentTime: ${new Date(lastSentTime).toLocaleString()}`);
 
 let checkInterval;
