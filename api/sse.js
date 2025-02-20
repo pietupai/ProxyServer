@@ -2,8 +2,9 @@ let sseClients = [];
 
 const addSseClient = (req, res) => {
   res.setHeader('Content-Type', 'text/event-stream');
-  res.setHeader('Cache-Control', 'no-cache');
+  res.setHeader('Cache-Control', 'no-cache, no-transform');
   res.setHeader('Connection', 'keep-alive');
+  res.setHeader('X-Accel-Buffering', 'no'); // Varmistaakseen, ettei vastausta puskeroida
   res.flushHeaders();
 
   sseClients.push(res);
@@ -19,6 +20,7 @@ const sendSseMessage = (data) => {
   console.log('Sending SSE message to', sseClients.length, 'clients');
   sseClients.forEach(client => {
     client.write(`data: ${data}\n\n`);
+    client.flush(); // Pakotetaan lähettämään tiedot
     console.log('SSE message sent to client');
   });
 };
