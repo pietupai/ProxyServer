@@ -1,8 +1,6 @@
 const fetch = require('node-fetch');
 const { addSseClient, sendSseMessage } = require('./sse');
 
-const sseClients = [];
-
 module.exports = async (req, res) => {
   if (req.method === 'POST') {
     try {
@@ -14,7 +12,7 @@ module.exports = async (req, res) => {
       console.log('Prepared data:', data);
 
       // Lähetä SSE-viesti
-      sendSseMessage(sseClients, data);
+      sendSseMessage(data);
 
       // Lähetä vastausdata
       res.status(200).json({ data });
@@ -24,7 +22,7 @@ module.exports = async (req, res) => {
     }
   } else if (req.method === 'GET') {
     console.log('SSE connection request received');
-    addSseClient(req, res, sseClients);
+    addSseClient(req, res);
     console.log('Total SSE clients:', sseClients.length);
   } else {
     res.setHeader('Allow', ['GET', 'POST']);
