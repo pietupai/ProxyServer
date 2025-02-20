@@ -32,4 +32,19 @@ const sendSseMessage = (clients, data) => {
   });
 };
 
-module.exports = { addSseClient, sendSseMessage };
+// Oletusvientifunktio
+module.exports = (req, res) => {
+  const clients = req.app.locals.sseClients || [];
+  if (req.method === 'GET') {
+    console.log('SSE connection request received');
+    addSseClient(req, res, clients);
+    console.log('Total SSE clients:', clients.length);
+  } else {
+    res.setHeader('Allow', ['GET']);
+    res.status(405).end(`Method ${req.method} Not Allowed`);
+  }
+};
+
+// Export the functions so they can be used in webhook.js
+module.exports.addSseClient = addSseClient;
+module.exports.sendSseMessage = sendSseMessage;
