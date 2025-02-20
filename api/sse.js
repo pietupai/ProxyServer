@@ -7,15 +7,16 @@ const addSseClient = (req, res) => {
   res.flushHeaders();
 
   sseClients.push(res);
-  console.log('SSE client connected');
+  console.log('SSE client connected. Total clients:', sseClients.length);
 
   req.on('close', () => {
     sseClients = sseClients.filter(client => client !== res);
-    console.log('SSE client disconnected');
+    console.log('SSE client disconnected. Total clients:', sseClients.length);
   });
 };
 
 const sendSseMessage = (data) => {
+  console.log('Sending SSE message to', sseClients.length, 'clients');
   sseClients.forEach(client => {
     client.write(`data: ${data}\n\n`);
     console.log('SSE message sent to client');
