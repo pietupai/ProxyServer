@@ -10,14 +10,10 @@ app.use(cors());
 
 const eventEmitter = new events.EventEmitter();
 
-function getCurrentTimestamp() {
-  return new Date().toISOString();
-}
-
 app.post('/api/webhook', async (req, res) => {
   try {
     const body = req.body;
-    console.log(`[${getCurrentTimestamp()}] Webhook event received:`, body);
+    console.log(`Webhook event received at ${new Date().toISOString()}:`, body);
 
     // Fetch the updated response.txt content
     const response = await fetch('https://raw.githubusercontent.com/pietupai/hae/main/response.txt');
@@ -28,7 +24,7 @@ app.post('/api/webhook', async (req, res) => {
 
     res.status(200).send(data);
   } catch (error) {
-    console.error(`[${getCurrentTimestamp()}] Error handling webhook:`, error);
+    console.error(`Error handling webhook at ${new Date().toISOString()}:`, error);
     res.status(500).send('Error handling webhook');
   }
 });
@@ -40,10 +36,10 @@ app.get('/api/sse', (req, res) => {
   res.setHeader('Connection', 'keep-alive');
   res.flushHeaders();
 
-  console.log(`[${getCurrentTimestamp()}] SSE connection established`);
+  console.log(`SSE connection established at ${new Date().toISOString()}`);
 
   const listener = (data) => {
-    console.log(`[${getCurrentTimestamp()}] Sending data to SSE client:`, data);
+    console.log(`Sending data to SSE client at ${new Date().toISOString()}:`, data);
     res.write(`data: ${data}\n\n`);
   };
 
@@ -51,13 +47,13 @@ app.get('/api/sse', (req, res) => {
 
   req.on('close', () => {
     eventEmitter.removeListener('newWebhook', listener);
-    console.log(`[${getCurrentTimestamp()}] SSE connection closed`);
+    console.log(`SSE connection closed at ${new Date().toISOString()}`);
   });
 });
 
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => {
-  console.log(`[${getCurrentTimestamp()}] Server is running on port ${PORT}`);
+  console.log(`Server is running on port ${PORT}`);
 });
 
 module.exports = app;
