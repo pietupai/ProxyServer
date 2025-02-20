@@ -27,6 +27,7 @@ app.post('/api/webhook', async (req, res) => {
     // Emit event with the updated content
     console.log(`Emitting newWebhook event with data: ${data}`);
     req.app.locals.eventEmitter.emit('newWebhook', data);
+    console.log('Event emitted successfully');
 
     res.status(200).send(data);
   } catch (error) {
@@ -52,7 +53,6 @@ app.get('/api/sse', (req, res) => {
 
   req.app.locals.eventEmitter.on('newWebhook', listener);
 
-  // Lisätty tarkempi logitus
   if (req.app.locals.eventEmitter.listenerCount('newWebhook') > 0) {
     console.log(`Listener registered for newWebhook event, count: ${req.app.locals.eventEmitter.listenerCount('newWebhook')}`);
   } else {
@@ -64,7 +64,6 @@ app.get('/api/sse', (req, res) => {
     console.log('SSE connection closed and listener removed');
   });
 });
-
 
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => {
