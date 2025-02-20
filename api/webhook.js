@@ -1,5 +1,6 @@
 const fetch = require('node-fetch');
 const { sendSseMessage } = require('./sse');
+let { sseClients } = require('./sse');
 
 module.exports = async (req, res) => {
   if (req.method === 'POST') {
@@ -21,7 +22,7 @@ module.exports = async (req, res) => {
       }
 
       // Send SSE message
-      sendSseMessage(sseClients, data);
+      sendSseMessage(data);
 
       // Lähetä vastausdata
       res.status(200).json({ data });
