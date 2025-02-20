@@ -74,14 +74,6 @@ app.get('/api/sse', (req, res) => {
   });
 });
 
-// Test handler to manually emit an event
-app.get('/api/test-event', (req, res) => {
-  const testData = 'Test event data';
-  console.log(`Emitting test event with data: ${testData}`);
-  req.app.locals.eventEmitter.emit('newWebhook', testData);
-  res.status(200).send('Test event emitted');
-});
-
 
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => {
