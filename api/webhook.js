@@ -1,6 +1,5 @@
 const fetch = require('node-fetch');
-const { sendSseMessage } = require('./sse');
-let { sseClients } = require('./sse');
+const { sendSseMessage, sseClients } = require('./sse');
 
 module.exports = async (req, res) => {
   if (req.method === 'POST') {
@@ -8,20 +7,11 @@ module.exports = async (req, res) => {
       const body = req.body;
       console.log('Webhook event received:', body);
 
-      // Fetch the updated content from response.txt with a timestamp to avoid caching
-      const responseUrl = `https://raw.githubusercontent.com/pietupai/hae/main/response.txt?timestamp=${new Date().getTime()}`;
-      console.log(`Fetching from URL: ${responseUrl}`);
-      const response = await fetch(responseUrl, { headers: { 'Cache-Control': 'no-cache' } });
+      // Simuloidaan tiedonsiirtoa
+      const data = "Simulated data for SSE clients";
+      console.log('Prepared data:', data);
 
-      const data = await response.text();
-      console.log('Fetched data:', data);
-
-      // Varmistetaan, että data on kelvollista eikä HTML-sisältöä
-      if (data.includes('<HEAD>')) {
-        throw new Error('Received HTML content instead of expected text');
-      }
-
-      // Send SSE message
+      // Lähetä SSE-viesti
       sendSseMessage(data);
 
       // Lähetä vastausdata
