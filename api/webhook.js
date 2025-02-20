@@ -1,5 +1,5 @@
 const fetch = require('node-fetch');
-const { addSseClient, sendSseMessage } = require('./sse');
+const { sendSseMessage } = require('./sse');
 
 let sseClients = [];
 
