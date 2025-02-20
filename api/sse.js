@@ -1,38 +1,30 @@
-let sseClients = [];
-
 const addSseClient = (req, res) => {
   res.setHeader('Content-Type', 'text/event-stream');
   res.setHeader('Cache-Control', 'no-cache, no-transform');
   res.setHeader('Connection', 'keep-alive');
-  res.setHeader('X-Accel-Buffering', 'no'); // Ensure no buffering
+  res.setHeader('X-Accel-Buffering', 'no'); // Varmistaakseen, ettei vastausta puskeroida
   res.flushHeaders();
 
-  sseClients.push(res);
-  console.log('SSE client connected. Total clients:', sseClients.length);
+  const clientId = Date.now();
+  const newClient = {
+    id: clientId,
+    res
+  };
 
-  req.on('close', () => {
-    sseClients = sseClients.filter(client => client !== res);
-    console.log('SSE client disconnected. Total clients:', sseClients.length);
+  res.on('close', () => {
+    console.log(`SSE client disconnected. Client ID: ${clientId}`);
+  });
+
+  return newClient;
+};
+
+const sendSseMessage = (clients, data) => {
+  console.log('Sending SSE message to', clients.length, 'clients');
+  clients.forEach(client => {
+    client.res.write(`data: ${data}\n\n`);
+    client.res.flush(); // Pakotetaan lähettämään tiedot
+    console.log('SSE message sent to client', client.id);
   });
 };
 
-const sendSseMessage = (data) => {
-  console.log('Sending SSE message to', sseClients.length, 'clients');
-  sseClients.forEach(client => {
-    client.write(`data: ${data}\n\n`);
-    console.log('SSE message sent to client');
-  });
-};
-
-module.exports = (req, res) => {
-  if (req.method === 'GET') {
-    console.log('SSE connection request received');
-    addSseClient(req, res);
-  } else {
-    res.setHeader('Allow', ['GET']);
-    res.status(405).end(`Method ${req.method} Not Allowed`);
-  }
-};
-
-// Export the sendSseMessage function so it can be used in webhook.js
-module.exports.sendSseMessage = sendSseMessage;
+module.exports = { addSseClient, sendSseMessage };
