@@ -1,8 +1,6 @@
 const fetch = require('node-fetch');
 const { sendSseMessage } = require('./sse');
 
-let sseClients = [];
-
 module.exports = async (req, res) => {
   if (req.method === 'POST') {
     try {
@@ -23,9 +21,7 @@ module.exports = async (req, res) => {
       }
 
       // Send SSE message
-      setTimeout(() => {
-        sendSseMessage(sseClients, data);
-      }, 1000);  // Viivästetään viestin lähetystä varmistaakseen, että asiakkaat ovat yhteydessä
+      sendSseMessage(sseClients, data);
 
       // Lähetä vastausdata
       res.status(200).json({ data });
