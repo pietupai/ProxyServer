@@ -94,7 +94,7 @@
     {
       "src": "/api/webhook",
       "dest": "api/webhook.js",
-      "methods": ["POST", "GET"],
+      "methods": ["POST"],
       "headers": {
         "Access-Control-Allow-Origin": "*",
         "Access-Control-Allow-Methods": "POST",
