@@ -42,15 +42,17 @@ app.get('/api/sse', (req, res) => {
   console.log('SSE connection established');
 
   const listener = (data) => {
-    console.log('Sending data to SSE client:', data);
+    console.log(`Listener received data: ${data}`);
     res.write(`data: ${data}\n\n`);
+    console.log('Data sent to SSE client');
   };
 
   eventEmitter.on('newWebhook', listener);
+  console.log('Listener registered for newWebhook event');
 
   req.on('close', () => {
     eventEmitter.removeListener('newWebhook', listener);
-    console.log('SSE connection closed');
+    console.log('SSE connection closed and listener removed');
   });
 });
 
