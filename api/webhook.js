@@ -13,18 +13,19 @@ const eventEmitter = new events.EventEmitter();
 app.post('/api/webhook', async (req, res) => {
   try {
     const body = req.body;
-    console.log(`Webhook event received at ${new Date().toISOString()}:`, body);
+    console.log(`Webhook event received:`, body);
 
     // Fetch the updated response.txt content
     const response = await fetch('https://raw.githubusercontent.com/pietupai/hae/main/response.txt');
     const data = await response.text();
 
     // Emit event with the updated content
+    console.log(`Emitting newWebhook event with data: ${data}`);
     eventEmitter.emit('newWebhook', data);
 
     res.status(200).send(data);
   } catch (error) {
-    console.error(`Error handling webhook at ${new Date().toISOString()}:`, error);
+    console.error(`Error handling webhook:`, error);
     res.status(500).send('Error handling webhook');
   }
 });
@@ -36,10 +37,10 @@ app.get('/api/sse', (req, res) => {
   res.setHeader('Connection', 'keep-alive');
   res.flushHeaders();
 
-  console.log(`SSE connection established at ${new Date().toISOString()}`);
+  console.log(`SSE connection established`);
 
   const listener = (data) => {
-    console.log(`Sending data to SSE client at ${new Date().toISOString()}:`, data);
+    console.log(`Sending data to SSE client:`, data);
     res.write(`data: ${data}\n\n`);
   };
 
@@ -47,7 +48,7 @@ app.get('/api/sse', (req, res) => {
 
   req.on('close', () => {
     eventEmitter.removeListener('newWebhook', listener);
-    console.log(`SSE connection closed at ${new Date().toISOString()}`);
+    console.log(`SSE connection closed`);
   });
 });
 
