@@ -14,11 +14,13 @@ app.post('/api/webhook', async (req, res) => {
   try {
     const body = req.body;
     console.log('Webhook event received:', body);
+    console.log('req body:', body);
 
     // Fetch the updated response.txt content
     //const response = await fetch('https://api.github.com/repos/pietupai/hae/contents/response.txt');
     const response = await fetch('https://raw.githubusercontent.com/pietupai/hae/main/response.txt');
-    const data = await response.json();
+    //const data = await response.json();
+    const data = await response.text();
     const decodedContent = Buffer.from(data.content, 'base64').toString('utf8');
 
     // Emit event with the updated content
