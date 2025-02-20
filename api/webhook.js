@@ -8,7 +8,10 @@ const app = express();
 app.use(bodyParser.json());
 app.use(cors());
 
-const eventEmitter = new events.EventEmitter();
+app.use((req, res, next) => {
+  req.app.locals.eventEmitter = req.app.locals.eventEmitter || new events.EventEmitter();
+  next();
+});
 
 app.post('/api/webhook', async (req, res) => {
   try {
@@ -23,7 +26,7 @@ app.post('/api/webhook', async (req, res) => {
 
     // Emit event with the updated content
     console.log(`Emitting newWebhook event with data: ${data}`);
-    eventEmitter.emit('newWebhook', data);
+    req.app.locals.eventEmitter.emit('newWebhook', data);
 
     res.status(200).send(data);
   } catch (error) {
@@ -47,17 +50,17 @@ app.get('/api/sse', (req, res) => {
     console.log('Data sent to SSE client');
   };
 
-  eventEmitter.on('newWebhook', listener);
+  req.app.locals.eventEmitter.on('newWebhook', listener);
 
   // Lisätty tarkempi logitus
-  if (eventEmitter.listenerCount('newWebhook') > 0) {
-    console.log(`Listener registered for newWebhook event, count: ${eventEmitter.listenerCount('newWebhook')}`);
+  if (req.app.locals.eventEmitter.listenerCount('newWebhook') > 0) {
+    console.log(`Listener registered for newWebhook event, count: ${req.app.locals.eventEmitter.listenerCount('newWebhook')}`);
   } else {
     console.log('Failed to register listener for newWebhook event');
   }
 
   req.on('close', () => {
-    eventEmitter.removeListener('newWebhook', listener);
+    req.app.locals.eventEmitter.removeListener('newWebhook', listener);
     console.log('SSE connection closed and listener removed');
   });
 });
