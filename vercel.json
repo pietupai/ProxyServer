@@ -28,6 +28,10 @@
     {
       "src": "api/websocket-server.js",
       "use": "@vercel/node"
+    },
+    {
+      "src": "api/sse.js",
+      "use": "@vercel/node"
     }
   ],
   "routes": [
