@@ -23,8 +23,7 @@
     },
     {
       "src": "api/webhook.js",
-      "use": "@vercel/node",
-      "maxDuration": 60
+      "use": "@vercel/node"
     },
     {
       "src": "api/websocket-server.js",
