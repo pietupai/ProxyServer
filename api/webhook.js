@@ -23,6 +23,7 @@ app.post('/api/webhook', async (req, res) => {
     const data = await response.text();
 
     // Emit event with the updated content
+    console.log(`[${getCurrentTimestamp()}] Emitting newWebhook event with data:`, data);
     eventEmitter.emit('newWebhook', data);
 
     res.status(200).send(data);
