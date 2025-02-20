@@ -22,7 +22,7 @@ app.post('/api/webhook', async (req, res) => {
     const decodedContent = Buffer.from(data.content, 'base64').toString('utf8');
 
     // Emit event with the updated content
-    *eventEmitter.emit('newWebhook', decodedContent);
+    eventEmitter.emit('newWebhook', decodedContent);
 
     res.status(200).send(decodedContent);
   } catch (error) {
