@@ -2,7 +2,7 @@ const addSseClient = (req, res, clients) => {
   res.setHeader('Content-Type', 'text/event-stream');
   res.setHeader('Cache-Control', 'no-cache, no-transform');
   res.setHeader('Connection', 'keep-alive');
-  res.setHeader('X-Accel-Buffering', 'no'); // Varmistaakseen, ettei vastausta puskeroida
+  res.setHeader('X-Accel-Buffering', 'no'); // Ensure no buffering
   res.flushHeaders();
 
   const clientId = Date.now();
