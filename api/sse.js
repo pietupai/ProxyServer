@@ -1,3 +1,5 @@
+let sseClients = [];
+
 const addSseClient = (req, res) => {
   res.setHeader('Content-Type', 'text/event-stream');
   res.setHeader('Cache-Control', 'no-cache, no-transform');
@@ -12,9 +14,11 @@ const addSseClient = (req, res) => {
   };
 
   res.on('close', () => {
+    sseClients = sseClients.filter(client => client.id !== clientId);
     console.log(`SSE client disconnected. Client ID: ${clientId}`);
   });
 
+  console.log('SSE client connected. Client ID:', clientId);
   return newClient;
 };
 
@@ -27,7 +31,6 @@ const sendSseMessage = (clients, data) => {
   });
 };
 
-// Oletusvientifunktio vaaditaan
 module.exports = (req, res) => {
   if (req.method === 'GET') {
     console.log('SSE connection request received');
