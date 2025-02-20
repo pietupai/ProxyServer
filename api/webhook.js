@@ -28,3 +28,6 @@ module.exports = async (req, res) => {
     console.log('Total SSE clients:', sseClients.length);
   } else {
     res.setHeader('Allow', ['GET', 'POST']);
+    res.status(405).end(`Method ${req.method} Not Allowed`);
+  }
+};
