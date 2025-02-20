@@ -1,7 +1,7 @@
 const express = require('express');
 const bodyParser = require('body-parser');
 const cors = require('cors');
-const events = require('events').eventEmitter;
+const events = require('events');
 const fetch = require('node-fetch');
 
 const app = express();
@@ -48,7 +48,13 @@ app.get('/api/sse', (req, res) => {
   };
 
   eventEmitter.on('newWebhook', listener);
-  console.log('Listener registered for newWebhook event');
+
+  // Lisätty tarkempi logitus
+  if (eventEmitter.listenerCount('newWebhook') > 0) {
+    console.log(`Listener registered for newWebhook event, count: ${eventEmitter.listenerCount('newWebhook')}`);
+  } else {
+    console.log('Failed to register listener for newWebhook event');
+  }
 
   req.on('close', () => {
     eventEmitter.removeListener('newWebhook', listener);
