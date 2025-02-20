@@ -14,7 +14,7 @@ const eventEmitter = new events.EventEmitter();
 app.post('/api/webhook', async (req, res) => {
   try {
     //console.log(req);
-    console.log(req.headers);
+    //console.log(req.headers);
     const body = req.body;
     console.log('Webhook event received:', body);
 
