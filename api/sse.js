@@ -25,6 +25,7 @@ const sendSseMessage = (data) => {
 
 module.exports = (req, res) => {
   if (req.method === 'GET') {
+    console.log('SSE connection request received');
     addSseClient(req, res);
   } else {
     res.setHeader('Allow', ['GET']);
