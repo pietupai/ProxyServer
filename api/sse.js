@@ -4,7 +4,7 @@ const addSseClient = (req, res) => {
   res.setHeader('Content-Type', 'text/event-stream');
   res.setHeader('Cache-Control', 'no-cache, no-transform');
   res.setHeader('Connection', 'keep-alive');
-  res.setHeader('X-Accel-Buffering', 'no'); // Varmistaakseen, ettei vastausta puskeroida
+  res.setHeader('X-Accel-Buffering', 'no'); // Ensure no buffering
   res.flushHeaders();
 
   const clientId = Date.now();
@@ -44,5 +44,6 @@ module.exports = (req, res) => {
   }
 };
 
-// Export the sendSseMessage function so it can be used in webhook.js
+// Export the sendSseMessage function and sseClients array so it can be used in webhook.js
 module.exports.sendSseMessage = sendSseMessage;
+module.exports.sseClients = sseClients;
