@@ -15,6 +15,10 @@ app.post('/api/webhook', async (req, res) => {
     const body = req.body;
     console.log('Webhook event received:', body);
     console.log('req body:', body);
+    console.log(req);
+    const body2 = req.body;
+    console.log("body");
+    console.log(body2);
 
     // Fetch the updated response.txt content
     const response = await fetch('https://raw.githubusercontent.com/pietupai/hae/main/response.txt');
