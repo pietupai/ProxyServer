@@ -2,7 +2,7 @@ const addSseClient = (req, res, sseClients) => {
   res.setHeader('Content-Type', 'text/event-stream');
   res.setHeader('Cache-Control', 'no-cache, no-transform');
   res.setHeader('Connection', 'keep-alive');
-  res.setHeader('X-Accel-Buffering', 'no'); // Varmistaakseen, ettei vastausta puskeroida
+  res.setHeader('X-Accel-Buffering', 'no'); // Ensure no buffering
   res.flushHeaders();
 
   const clientId = Date.now();
@@ -12,7 +12,10 @@ const addSseClient = (req, res, sseClients) => {
   };
 
   res.on('close', () => {
-    sseClients = sseClients.filter(client => client.id !== clientId);
+    const index = sseClients.findIndex(client => client.id === clientId);
+    if (index !== -1) {
+      sseClients.splice(index, 1);
+    }
     console.log(`SSE client disconnected. Client ID: ${clientId}`);
   });
 
@@ -42,6 +45,6 @@ module.exports = (req, res) => {
   }
 };
 
-// Export the functions so it can be used in webhook.js
+// Export the functions so they can be used in webhook.js
 module.exports.addSseClient = addSseClient;
 module.exports.sendSseMessage = sendSseMessage;
