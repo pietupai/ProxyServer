@@ -12,7 +12,7 @@ module.exports = async (req, res) => {
       console.log('Prepared data:', data);
 
       // Lähetä SSE-viesti
-      sendSseMessage(data);
+      sendSseMessage(req.app.locals.sseClients, data);
 
       // Lähetä vastausdata
       res.status(200).json({ data });
@@ -22,8 +22,9 @@ module.exports = async (req, res) => {
     }
   } else if (req.method === 'GET') {
     console.log('SSE connection request received');
-    addSseClient(req, res);
-    console.log('Total SSE clients:', sseClients.length);
+    req.app.locals.sseClients = req.app.locals.sseClients || [];
+    addSseClient(req, res, req.app.locals.sseClients);
+    console.log('Total SSE clients:', req.app.locals.sseClients.length);
   } else {
     res.setHeader('Allow', ['GET', 'POST']);
     res.status(405).end(`Method ${req.method} Not Allowed`);
