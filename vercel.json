@@ -2,20 +2,6 @@
   "version": 2,
   "builds": [
     {
-      "src": "api/sse-server.js",
-      "use": "@vercel/node"
-    },
-    {
-      "src": "api/webhook.js",
-      "use": "@vercel/node"
-    },
-    {
-      "src": "api/websocket-server.js",
-      "use": "@vercel/node"
-    }
-  ],
-  "builds": [
-    {
       "src": "api/trigger-workflow.js",
       "use": "@vercel/node"
     },
