@@ -1,7 +1,7 @@
 const fetch = require('node-fetch');
 const { addSseClient, sendSseMessage } = require('./sse');
 
-let sseClients = [];
+const sseClients = [];
 
 module.exports = async (req, res) => {
   if (req.method === 'POST') {
@@ -24,7 +24,7 @@ module.exports = async (req, res) => {
     }
   } else if (req.method === 'GET') {
     console.log('SSE connection request received');
-    sseClients = addSseClient(req, res, sseClients);
+    addSseClient(req, res, sseClients);
     console.log('Total SSE clients:', sseClients.length);
   } else {
     res.setHeader('Allow', ['GET', 'POST']);
