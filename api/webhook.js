@@ -7,23 +7,28 @@ module.exports = async (req, res) => {
       const body = req.body;
       console.log('Webhook event received:', body);
 
-      // Fetch the updated content from response.txt without any redirection issues
+      // Oikea URL-osoite ilman ohjausta
       const responseUrl = `https://raw.githubusercontent.com/pietupai/hae/main/response.txt?timestamp=${new Date().getTime()}`;
       console.log(`Fetching from URL: ${responseUrl}`);
-      const response = await fetch(responseUrl, { headers: { 'Cache-Control': 'no-cache' } });
+      const response = await fetch(responseUrl, { redirect: 'follow' });
+
+      // Tarkista, että verkkovastaus on kunnossa
+      if (!response.ok) {
+        throw new Error(`Network response was not ok: ${response.statusText}`);
+      }
 
       const data = await response.text();
       console.log('Fetched data:', data);
 
-      // Ensure fetched data is valid before sending SSE message
+      // Varmista, että haettu data on kelvollinen
       if (data.includes('<HEAD>')) {
         throw new Error('Received HTML content instead of expected text');
       }
 
-      // Send SSE message
+      // Lähetä SSE-viesti
       sendSseMessage(data);
 
-      // Send response data
+      // Lähetä vastausdata
       res.status(200).json({ data });
     } catch (error) {
       console.error('Error handling webhook:', error.message);
