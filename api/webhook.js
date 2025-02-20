@@ -35,15 +35,6 @@ app.post('/api/webhook', async (req, res) => {
   }
 });
 
-// Test handler to manually emit an event
-app.get('/api/webhook', (req, res) => {
-  const testData = 'Test event data';
-  console.log(`Emitting test event with data: ${testData}`);
-  req.app.locals.eventEmitter.emit('newWebhook', testData);
-  res.status(200).send('Test event emitted');
-});
-
-
 // SSE endpoint with additional logging
 app.get('/api/sse', (req, res) => {
   res.setHeader('Content-Type', 'text/event-stream');
