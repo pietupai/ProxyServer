@@ -1,7 +1,7 @@
 const express = require('express');
 const bodyParser = require('body-parser');
 const cors = require('cors');
-const events = require('events');
+const events = require('events').eventEmitter;
 const fetch = require('node-fetch');
 
 const app = express();
