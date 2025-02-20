@@ -103,7 +103,7 @@
     },
     {
       "src": "/api/sse",
-      "dest": "/api/sse.js",
+      "dest": "api/sse.js",
       "methods": ["GET", "OPTIONS"],
       "headers": {
         "Access-Control-Allow-Origin": "*",
