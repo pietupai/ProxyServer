@@ -14,6 +14,37 @@
       "use": "@vercel/node"
     }
   ],
+  "builds": [
+    {
+      "src": "api/trigger-workflow.js",
+      "use": "@vercel/node"
+    },
+    {
+      "src": "api/proxy.js",
+      "use": "@vercel/node"
+    },
+    {
+      "src": "api/fetch-proxy.js",
+      "use": "@vercel/node"
+    },
+    {
+      "src": "api/get-response.js",
+      "use": "@vercel/node"
+    },
+    {
+      "src": "api/sse-server.js",
+      "use": "@vercel/node"
+    },
+    {
+      "src": "api/webhook.js",
+      "use": "@vercel/node",
+      "maxDuration": 60
+    },
+    {
+      "src": "api/websocket-server.js",
+      "use": "@vercel/node"
+    }
+  ],
   "routes": [
     {
       "src": "/api/trigger-workflow",
