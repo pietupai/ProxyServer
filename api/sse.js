@@ -27,4 +27,18 @@ const sendSseMessage = (clients, data) => {
   });
 };
 
-module.exports = { addSseClient, sendSseMessage };
+// Oletusvientifunktio vaaditaan
+module.exports = (req, res) => {
+  if (req.method === 'GET') {
+    console.log('SSE connection request received');
+    const newClient = addSseClient(req, res);
+    sseClients.push(newClient);
+    console.log('Total SSE clients:', sseClients.length);
+  } else {
+    res.setHeader('Allow', ['GET']);
+    res.status(405).end(`Method ${req.method} Not Allowed`);
+  }
+};
+
+// Export the sendSseMessage function so it can be used in webhook.js
+module.exports.sendSseMessage = sendSseMessage;
