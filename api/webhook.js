@@ -41,11 +41,6 @@ app.get('/api/sse', (req, res) => {
 
   console.log('SSE connection established');
 
-  const keepAlive = setInterval(() => {
-    res.write('data: keep-alive\n\n');
-    console.log('Keep-alive message sent');
-  }, 5000);
-
   const listener = (data) => {
     console.log('Sending data to SSE client:', data);
     res.write(`data: ${data}\n\n`);
@@ -55,7 +50,7 @@ app.get('/api/sse', (req, res) => {
 
   req.on('close', () => {
     clearInterval(keepAlive);
-    //eventEmitter.removeListener('newWebhook', listener);
+    eventEmitter.removeListener('newWebhook', listener);
     console.log('SSE connection closed');
   });
 });
