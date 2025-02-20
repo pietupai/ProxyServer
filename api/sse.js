@@ -1,4 +1,4 @@
-const addSseClient = (req, res, sseClients) => {
+const addSseClient = (req, res, clients) => {
   res.setHeader('Content-Type', 'text/event-stream');
   res.setHeader('Cache-Control', 'no-cache, no-transform');
   res.setHeader('Connection', 'keep-alive');
@@ -12,20 +12,20 @@ const addSseClient = (req, res, sseClients) => {
   };
 
   res.on('close', () => {
-    const index = sseClients.findIndex(client => client.id === clientId);
+    const index = clients.findIndex(client => client.id === clientId);
     if (index !== -1) {
-      sseClients.splice(index, 1);
+      clients.splice(index, 1);
     }
     console.log(`SSE client disconnected. Client ID: ${clientId}`);
   });
 
-  sseClients.push(newClient);
+  clients.push(newClient);
   console.log('SSE client connected. Client ID:', clientId);
 };
 
-const sendSseMessage = (sseClients, data) => {
-  console.log('Sending SSE message to', sseClients.length, 'clients');
-  sseClients.forEach(client => {
+const sendSseMessage = (clients, data) => {
+  console.log('Sending SSE message to', clients.length, 'clients');
+  clients.forEach(client => {
     client.res.write(`data: ${data}\n\n`);
     client.res.flush(); // Pakotetaan lähettämään tiedot
     console.log('SSE message sent to client', client.id);
@@ -33,12 +33,11 @@ const sendSseMessage = (sseClients, data) => {
 };
 
 // Oletusvientifunktio vaaditaan
-module.exports = (req, res) => {
-  const sseClients = [];
+module.exports = (req, res, clients) => {
   if (req.method === 'GET') {
     console.log('SSE connection request received');
-    addSseClient(req, res, sseClients);
-    console.log('Total SSE clients:', sseClients.length);
+    addSseClient(req, res, clients);
+    console.log('Total SSE clients:', clients.length);
   } else {
     res.setHeader('Allow', ['GET']);
     res.status(405).end(`Method ${req.method} Not Allowed`);
