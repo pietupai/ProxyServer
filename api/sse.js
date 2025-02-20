@@ -22,15 +22,16 @@ const addSseClient = (req, res) => {
   return newClient;
 };
 
-const sendSseMessage = (clients, data) => {
-  console.log('Sending SSE message to', clients.length, 'clients');
-  clients.forEach(client => {
+const sendSseMessage = (data) => {
+  console.log('Sending SSE message to', sseClients.length, 'clients');
+  sseClients.forEach(client => {
     client.res.write(`data: ${data}\n\n`);
     client.res.flush(); // Pakotetaan lähettämään tiedot
     console.log('SSE message sent to client', client.id);
   });
 };
 
+// Oletusvientifunktio vaaditaan
 module.exports = (req, res) => {
   if (req.method === 'GET') {
     console.log('SSE connection request received');
