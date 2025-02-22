@@ -1,15 +1,12 @@
 const express = require('express');
 const bodyParser = require('body-parser');
 const cors = require('cors');
-const events = require('events');
 const fetch = require('node-fetch');
+const eventEmitter = require('./eventEmitter');
 
 const app = express();
-//app.use(bodyParser.text());
 app.use(bodyParser.json());
 app.use(cors());
-
-const eventEmitter = new events.EventEmitter();
 
 app.post('/api/webhook', async (req, res) => {
   try {
@@ -31,7 +28,6 @@ app.post('/api/webhook', async (req, res) => {
   }
 });
 
-// SSE endpoint with additional logging
 app.get('/api/sse', (req, res) => {
   res.setHeader('Content-Type', 'text/event-stream');
   res.setHeader('Cache-Control', 'no-cache');
