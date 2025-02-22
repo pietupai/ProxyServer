@@ -24,10 +24,6 @@
     {
       "src": "api/websocket-server.js",
       "use": "@vercel/node"
-    },
-    {
-      "src": "api/sse.js",
-      "use": "@vercel/node"
     }
   ],
   "routes": [
@@ -64,20 +60,10 @@
     {
       "src": "/api/get-response",
       "dest": "api/get-response.js",
-      "methods": ["GET", "POST", "PUT", "DELETE, PATCH, OPTIONS"],
+      "methods": ["GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS"],
       "headers": {
         "Access-Control-Allow-Origin": "*",
         "Access-Control-Allow-Methods": "GET, POST, PUT, DELETE, PATCH, OPTIONS",
-        "Access-Control-Allow-Headers": "Content-Type, Authorization, X-Requested-With"
-      }
-    },
-    {
-      "src": "/api/events",
-      "dest": "api/webhook.js",
-      "methods": ["GET, OPTIONS"],
-      "headers": {
-        "Access-Control-Allow-Origin": "*",
-        "Access-Control-Allow-Methods": "GET, OPTIONS",
         "Access-Control-Allow-Headers": "Content-Type, Authorization, X-Requested-With"
       }
     },
@@ -94,7 +80,7 @@
     {
       "src": "/api/sse",
       "dest": "api/webhook.js",
-      "methods": ["GET, OPTIONS"],
+      "methods": ["GET", "OPTIONS"],
       "headers": {
         "Access-Control-Allow-Origin": "*",
         "Access-Control-Allow-Methods": "GET, OPTIONS",
@@ -104,7 +90,7 @@
     {
       "src": "/api/websocket",
       "dest": "api/websocket-server.js",
-      "methods": ["GET, OPTIONS"],
+      "methods": ["GET", "OPTIONS"],
       "headers": {
         "Access-Control-Allow-Origin": "*",
         "Access-Control-Allow-Methods": "GET, OPTIONS",
