@@ -82,16 +82,6 @@
       }
     },
     {
-      "src": "/sse-index",
-      "dest": "api/webhook.js",
-      "methods": ["GET"],
-      "headers": {
-        "Access-Control-Allow-Origin": "*",
-        "Access-Control-Allow-Methods": "GET",
-        "Access-Control-Allow-Headers": "Content-Type"
-      }
-    },
-    {
       "src": "/api/webhook",
       "dest": "api/webhook.js",
       "methods": ["POST"],
