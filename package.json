@@ -16,6 +16,7 @@
   },
   "scripts": {
     "start": "node api/trigger-workflow.js",
-    "sse": "node api/sse.js"
+    "sse": "node api/sse.js",
+    "webhook": "node api/webhook.js"
   }
 }
