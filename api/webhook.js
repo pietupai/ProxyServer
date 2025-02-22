@@ -19,6 +19,7 @@ app.post('/api/webhook', async (req, res) => {
     const decodedContent = Buffer.from(data.content, 'base64').toString('utf8');
 
     // Emit event with the updated content
+    console.log('Emitting event: newWebhook');
     eventEmitter.emit('newWebhook', decodedContent);
 
     res.status(200).send(decodedContent);
@@ -26,32 +27,6 @@ app.post('/api/webhook', async (req, res) => {
     console.error('Error handling webhook:', error);
     res.status(500).send('Error handling webhook');
   }
-});
-
-app.get('/api/sse', (req, res) => {
-  res.setHeader('Content-Type', 'text/event-stream');
-  res.setHeader('Cache-Control', 'no-cache');
-  res.setHeader('Connection', 'keep-alive');
-
-  console.log('SSE connection established');
-
-  const keepAlive = setInterval(() => {
-    res.write(': keep-alive\n\n');
-    console.log('Keep-alive message sent');
-  }, 15000);
-
-  const listener = (data) => {
-    console.log('Sending data to SSE client:', data);
-    res.write(`data: ${data}\n\n`);
-  };
-
-  eventEmitter.on('newWebhook', listener);
-
-  req.on('close', () => {
-    clearInterval(keepAlive);
-    eventEmitter.removeListener('newWebhook', listener);
-    console.log('SSE connection closed');
-  });
 });
 
 const PORT = process.env.PORT || 3000;
