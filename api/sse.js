@@ -1,52 +1,37 @@
-const addSseClient = (req, res, clients) => {
-  res.setHeader('Content-Type', 'text/event-stream');
-  res.setHeader('Cache-Control', 'no-cache, no-transform');
-  res.setHeader('Connection', 'keep-alive');
-  res.setHeader('X-Accel-Buffering', 'no'); // Varmistaakseen, ettei vastausta puskeroida
-  res.flushHeaders();
+const express = require('express');
+const eventEmitter = require('./eventEmitter');
 
-  const clientId = Date.now();
-  const newClient = {
-    id: clientId,
-    res
+const app = express();
+
+app.get('/api/sse', (req, res) => {
+  res.setHeader('Content-Type', 'text/event-stream');
+  res.setHeader('Cache-Control', 'no-cache');
+  res.setHeader('Connection', 'keep-alive');
+
+  console.log('SSE connection established');
+
+  const keepAlive = setInterval(() => {
+    res.write(': keep-alive\n\n');
+    console.log('Keep-alive message sent');
+  }, 15000);
+
+  const listener = (data) => {
+    console.log('Sending data to SSE client:', data);
+    res.write(`data: ${data}\n\n`);
   };
 
-  res.on('close', () => {
-    const index = clients.findIndex(client => client.id === clientId);
-    if (index !== -1) {
-      clients.splice(index, 1);
-    }
-    console.log(`SSE client disconnected. Client ID: ${clientId}`);
+  eventEmitter.on('newWebhook', listener);
+
+  req.on('close', () => {
+    clearInterval(keepAlive);
+    eventEmitter.removeListener('newWebhook', listener);
+    console.log('SSE connection closed');
   });
+});
 
-  clients.push(newClient);
-  console.log('SSE client connected. Client ID:', clientId);
-};
+const PORT = process.env.PORT || 3000;
+app.listen(PORT, () => {
+  console.log(`Server is running on port ${PORT}`);
+});
 
-const sendSseMessage = (clients, data) => {
-  console.log('Sending SSE message to', clients.length, 'clients');
-  clients.forEach(client => {
-    client.res.write(`data: ${data}\n\n`);
-    client.res.flush(); // Pakotetaan lähettämään tiedot
-    console.log('SSE message sent to client', client.id);
-  });
-};
-
-module.exports = (req, res) => {
-  if (!req.app.locals.sseClients) {
-    req.app.locals.sseClients = [];
-  }
-
-  if (req.method === 'GET') {
-    console.log('SSE connection request received');
-    addSseClient(req, res, req.app.locals.sseClients);
-    console.log('Total SSE clients:', req.app.locals.sseClients.length);
-  } else {
-    res.setHeader('Allow', ['GET']);
-    res.status(405).end(`Method ${req.method} Not Allowed`);
-  }
-};
-
-// Export the functions so they can be used in webhook.js
-module.exports.addSseClient = addSseClient;
-module.exports.sendSseMessage = sendSseMessage;
+module.exports = app;
