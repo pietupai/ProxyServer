@@ -5,7 +5,8 @@ const events = require('events');
 const fetch = require('node-fetch');
 
 const app = express();
-app.use(bodyParser.text());
+//app.use(bodyParser.text());
+app.use(bodyParser.json());
 app.use(cors());
 
 const eventEmitter = new events.EventEmitter();
