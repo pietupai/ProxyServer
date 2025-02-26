@@ -11,7 +11,7 @@ app.use(cors());
 const eventEmitter = new events.EventEmitter();
 
 //app.post('/api/webhook', async (req, res) => {
-app.post('/api/webhook', async (req, res) => {
+app.post('/api/webhook', (req, res) => {
   try {
     const body = req.body;
     console.log('Webhook event received:', body);
